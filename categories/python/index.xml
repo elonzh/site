@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Python on Life Log</title>
+    <link>//earlzo.me/categories/python/</link>
+    <description>Recent content in Python on Life Log</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 25 Mar 2017 14:15:48 +0800</lastBuildDate>
+    
+	<atom:link href="//earlzo.me/categories/python/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>使用Python导出扇贝应用打卡日历</title>
+      <link>//earlzo.me/blog/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/</link>
+      <pubDate>Sat, 25 Mar 2017 14:15:48 +0800</pubDate>
+      
+      <guid>//earlzo.me/blog/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/</guid>
+      <description>我一直使用嘀嗒清单做待办清单，它支持丰富的数据导入导出功能，强大的时间定义和日历功能，让我有了将它作为习惯和目标管理工具的想法。 因为之前有使</description>
+    </item>
+    
+    <item>
+      <title>Jupyter Notebook 前端交互部件实现</title>
+      <link>//earlzo.me/blog/jupyter-notebook-%E5%89%8D%E7%AB%AF%E4%BA%A4%E4%BA%92%E9%83%A8%E4%BB%B6%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Fri, 25 Nov 2016 00:00:00 +0000</pubDate>
+      
+      <guid>//earlzo.me/blog/jupyter-notebook-%E5%89%8D%E7%AB%AF%E4%BA%A4%E4%BA%92%E9%83%A8%E4%BB%B6%E5%AE%9E%E7%8E%B0/</guid>
+      <description>Jupyter Notebook 介绍1 Jupyter Notebook 是一个基于提供了开发, 记录, 执行和展现结果等过程的Web应用. Jupyter Notebook 实现原理2 Jupyter Notebook 除了用于前端交互的 Web组件外, 其核心功能是与</description>
+    </item>
+    
+  </channel>
+</rss>
