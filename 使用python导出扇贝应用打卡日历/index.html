@@ -1,0 +1,383 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>使用Python导出扇贝应用打卡日历 - Life Log</title><meta name=Description content="这是我的全新 Hugo 网站"><meta property="og:title" content="使用Python导出扇贝应用打卡日历"><meta property="og:description" content="我一直使用嘀嗒清单做待办清单，它支持丰富的数据导入导出功能，强大的时间定义和日历功能，让我有了将它作为习惯和目标管理工具的想法。 因为之前有使"><meta property="og:type" content="article"><meta property="og:url" content="https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/"><meta property="og:image" content="https://www.elonzh.com/logo.png"><meta property="article:published_time" content="2017-03-25T14:15:48+08:00"><meta property="article:modified_time" content="2017-03-25T14:15:48+08:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://www.elonzh.com/logo.png"><meta name=twitter:title content="使用Python导出扇贝应用打卡日历"><meta name=twitter:description content="我一直使用嘀嗒清单做待办清单，它支持丰富的数据导入导出功能，强大的时间定义和日历功能，让我有了将它作为习惯和目标管理工具的想法。 因为之前有使"><meta name=application-name content="LoveIt"><meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=https://www.elonzh.com/favicon.ico><link rel=icon type=image/png sizes=32x32 href=https://www.elonzh.com/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=https://www.elonzh.com/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=https://www.elonzh.com/apple-touch-icon.png><link rel=mask-icon href=https://www.elonzh.com/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=https://www.elonzh.com/site.webmanifest><link rel=canonical href=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/><link rel=prev href=https://www.elonzh.com/jupyter-notebook-%E5%89%8D%E7%AB%AF%E4%BA%A4%E4%BA%92%E9%83%A8%E4%BB%B6%E5%AE%9E%E7%8E%B0/><link rel=next href=https://www.elonzh.com/http%E8%AF%B7%E6%B1%82%E6%8C%87%E7%BA%B9%E7%9A%84%E8%AE%A1%E7%AE%97/><link rel=stylesheet href=https://www.elonzh.com/lib/normalize/normalize.min.css><link rel=stylesheet href=https://www.elonzh.com/css/style.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/fontawesome-free/all.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"使用Python导出扇贝应用打卡日历","inLanguage":"zh-cn","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/www.elonzh.com\/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86\/"},"genre":"posts","keywords":"扇贝, 日历","wordcount":1900,"url":"https:\/\/www.elonzh.com\/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86\/","datePublished":"2017-03-25T14:15:48+08:00","dateModified":"2017-03-25T14:15:48+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Elon Zhou"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':('auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark'))&&document.body.setAttribute('theme','dark');</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu><div class=menu-inner><a class=menu-item href=https://www.elonzh.com/>首页 </a><a class=menu-item href=https://www.elonzh.com/posts/>文章 </a><a class=menu-item href=https://www.elonzh.com/tags/>标签 </a><a class=menu-item href=https://www.elonzh.com/categories/>分类 </a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片 </a><a class=menu-item href=https://www.elonzh.com/about/>关于 </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop><input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin"></i></span></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin"></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>取消</a></div><a class=menu-item href=https://www.elonzh.com/>首页</a><a class=menu-item href=https://www.elonzh.com/posts/>文章</a><a class=menu-item href=https://www.elonzh.com/tags/>标签</a><a class=menu-item href=https://www.elonzh.com/categories/>分类</a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片</a><a class=menu-item href=https://www.elonzh.com/about/>关于</a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">使用Python导出扇贝应用打卡日历</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://www.elonzh.com/ title=Author rel=author class=author><i class="fas fa-user-circle fa-fw"></i>Elon Zhou</a></span>&nbsp;<span class=post-category>收录于 <a href=https://www.elonzh.com/categories/python/><i class="far fa-folder fa-fw"></i>Python</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2017-03-25>2017-03-25</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1900 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 4 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents></nav></div></div><div class=content id=content><p>我一直使用嘀嗒清单做待办清单，它支持丰富的数据导入导出功能，强大的时间定义和日历功能，让我有了将它作为习惯和目标管理工具的想法。</p><p>因为之前有使用其数据导入功能添加个人课表的<a href=http://hfut.readthedocs.io/zh_CN/latest/advanced.html#id3 target=_blank rel="noopener noreffer">经验</a>，所以这次我决定将我的扇贝打卡日历导出为ical文件再导入到嘀嗒清单。</p><p>既然是导出扇贝应用打卡日历，其核心就是使用一定的方式获取到我们所需要的数据。以往我们习惯的做法是通过网页爬虫解析页面得到我们所要抓取的数据，但对于有客户端的应用，我们首先应该想到的是对客户端数据进行抓包分析，一般就能够直接得到我们所需要的数据接口了。</p><p>在这里我使用的是<a href=https://www.charlesproxy.com target=_blank rel="noopener noreffer">Charles</a>进行HTTP抓包。</p><p>我们首先打开Charles，在手机上注销掉扇贝单词的账号，设置网络代理用于抓包（如果手机没有安装Charles的根证书用于解密HTTPS需要先安装证书），然后填写我们的账号和密码进行登录抓包。</p><p>关于抓包及分析数据在这里我们就不做赘述了，基本接口在Charles显示的结果如下:</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/Charles_2017-03-25_15-30-12.png data-srcset="https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/img/Charles_2017-03-25_15-30-12.png, img/Charles_2017-03-25_15-30-12.png 1.5x, https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/img/Charles_2017-03-25_15-30-12.png 2x" data-sizes=auto alt=/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/img/Charles_2017-03-25_15-30-12.png title=Charles_2017-03-25_15-30-12></p><p>因为请求的内容有个人的敏感数据，实际的接口操作我们只需要看代码即可:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span><span class=lnt>174
+</span><span class=lnt>175
+</span><span class=lnt>176
+</span><span class=lnt>177
+</span><span class=lnt>178
+</span><span class=lnt>179
+</span><span class=lnt>180
+</span><span class=lnt>181
+</span><span class=lnt>182
+</span><span class=lnt>183
+</span><span class=lnt>184
+</span><span class=lnt>185
+</span><span class=lnt>186
+</span><span class=lnt>187
+</span><span class=lnt>188
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-Python data-lang=Python><span class=c1># -*- coding:utf-8 -*-</span>
+<span class=kn>import</span> <span class=nn>logging</span>
+<span class=kn>import</span> <span class=nn>requests</span>
+<span class=kn>import</span> <span class=nn>icalendar</span>
+
+<span class=kn>from</span> <span class=nn>urllib.parse</span> <span class=kn>import</span> <span class=n>urljoin</span>
+<span class=kn>from</span> <span class=nn>datetime</span> <span class=kn>import</span> <span class=n>datetime</span>
+
+
+<span class=k>def</span> <span class=nf>_init_logger</span><span class=p>():</span>
+    <span class=n>logger</span> <span class=o>=</span> <span class=n>logging</span><span class=o>.</span><span class=n>Logger</span><span class=p>(</span><span class=s2>&#34;shanbay&#34;</span><span class=p>,</span> <span class=n>logging</span><span class=o>.</span><span class=n>INFO</span><span class=p>)</span>
+    <span class=n>sh</span> <span class=o>=</span> <span class=n>logging</span><span class=o>.</span><span class=n>StreamHandler</span><span class=p>()</span>
+    <span class=c1># https://docs.python.org/3/library/logging.html#logrecord-attributes</span>
+    <span class=n>fmt</span> <span class=o>=</span> <span class=n>logging</span><span class=o>.</span><span class=n>Formatter</span><span class=p>(</span><span class=s1>&#39;</span><span class=si>%(asctime)s</span><span class=s1>[</span><span class=si>%(levelname)s</span><span class=s1>]: </span><span class=si>%(message)s</span><span class=s1>&#39;</span><span class=p>)</span>
+    <span class=n>sh</span><span class=o>.</span><span class=n>setFormatter</span><span class=p>(</span><span class=n>fmt</span><span class=p>)</span>
+    <span class=n>logger</span><span class=o>.</span><span class=n>addHandler</span><span class=p>(</span><span class=n>sh</span><span class=p>)</span>
+    <span class=k>return</span> <span class=n>logger</span>
+
+
+<span class=n>logger</span> <span class=o>=</span> <span class=n>_init_logger</span><span class=p>()</span>
+
+
+<span class=k>class</span> <span class=nc>RequestError</span><span class=p>(</span><span class=ne>Exception</span><span class=p>):</span>
+    <span class=k>pass</span>
+
+
+<span class=k>class</span> <span class=nc>Shanbay</span><span class=p>:</span>
+    <span class=n>_base_url</span> <span class=o>=</span> <span class=s2>&#34;https://rest.shanbay.com/&#34;</span>
+
+    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>account</span><span class=p>,</span> <span class=n>password</span><span class=p>):</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>session</span> <span class=o>=</span> <span class=n>requests</span><span class=o>.</span><span class=n>Session</span><span class=p>()</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_login</span><span class=p>(</span><span class=n>account</span><span class=p>,</span> <span class=n>password</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>user</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_user_info</span><span class=p>()</span>
+
+    <span class=k>def</span> <span class=nf>_urljoin</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>path</span><span class=p>):</span>
+        <span class=k>return</span> <span class=n>urljoin</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_base_url</span><span class=p>,</span> <span class=n>path</span><span class=p>)</span>
+
+    <span class=nd>@staticmethod</span>
+    <span class=k>def</span> <span class=nf>_check_response_status</span><span class=p>(</span><span class=n>response_json</span><span class=p>):</span>
+        <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>        检查响应是否有错, 没有错误便返回data字段
+</span><span class=s2>        &#34;&#34;&#34;</span>
+        <span class=k>if</span> <span class=s2>&#34;status_code&#34;</span> <span class=ow>not</span> <span class=ow>in</span> <span class=n>response_json</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=n>RequestError</span><span class=p>(</span><span class=n>response_json</span><span class=p>[</span><span class=s2>&#34;msg&#34;</span><span class=p>])</span>
+        <span class=k>if</span> <span class=n>response_json</span><span class=p>[</span><span class=s2>&#34;status_code&#34;</span><span class=p>]</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=n>RequestError</span><span class=p>(</span>
+                <span class=s2>&#34;请求错误 {res[status_code]}: {res[msg]}&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>res</span><span class=o>=</span><span class=n>response_json</span><span class=p>)</span>
+            <span class=p>)</span>
+        <span class=k>return</span> <span class=n>response_json</span><span class=p>[</span><span class=s2>&#34;data&#34;</span><span class=p>]</span>
+
+    <span class=k>def</span> <span class=nf>_login</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>account</span><span class=p>,</span> <span class=n>password</span><span class=p>):</span>
+        <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>        登陆接口
+</span><span class=s2>        :param account: 扇贝账号
+</span><span class=s2>        :param password: 扇贝账号密码
+</span><span class=s2>        :return: 登陆状态
+</span><span class=s2>        &#34;&#34;&#34;</span>
+        <span class=c1># 直接登陆扇贝, 不存储用户名和密码</span>
+        <span class=n>login_status</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>session</span><span class=o>.</span><span class=n>put</span><span class=p>(</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>_urljoin</span><span class=p>(</span><span class=s2>&#34;api/v1/account/login/&#34;</span><span class=p>),</span>
+            <span class=n>json</span><span class=o>=</span><span class=p>{</span>
+                <span class=s2>&#34;username&#34;</span><span class=p>:</span> <span class=n>account</span><span class=p>,</span>
+                <span class=s2>&#34;password&#34;</span><span class=p>:</span> <span class=n>password</span>
+            <span class=p>}</span>
+        <span class=p>)</span><span class=o>.</span><span class=n>json</span><span class=p>()</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_check_response_status</span><span class=p>(</span><span class=n>login_status</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>get_user_info</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+        <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>        获取个人信息
+</span><span class=s2>        &#34;&#34;&#34;</span>
+        <span class=n>user_info</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>session</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_urljoin</span><span class=p>(</span><span class=s2>&#34;api/v1/common/user/&#34;</span><span class=p>))</span><span class=o>.</span><span class=n>json</span><span class=p>()</span>
+        <span class=n>user_info</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_check_response_status</span><span class=p>(</span><span class=n>user_info</span><span class=p>)</span>
+        <span class=c1># 对用户信息做缓存用于得到接口的默认user_id参数</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>user</span> <span class=o>=</span> <span class=n>user_info</span>
+        <span class=k>return</span> <span class=n>user_info</span>
+
+    <span class=k>def</span> <span class=nf>get_checkin_date</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+        <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>        获取当前打卡日期
+</span><span class=s2>        &#34;&#34;&#34;</span>
+        <span class=n>checkin_date</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>session</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_urljoin</span><span class=p>(</span><span class=s2>&#34;/api/v1/checkin/date/&#34;</span><span class=p>))</span><span class=o>.</span><span class=n>json</span><span class=p>()</span>
+        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_check_response_status</span><span class=p>(</span><span class=n>checkin_date</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>get_checkins</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>year</span><span class=o>=</span><span class=bp>None</span><span class=p>,</span> <span class=n>month</span><span class=o>=</span><span class=bp>None</span><span class=p>,</span> <span class=n>user_id</span><span class=o>=</span><span class=bp>None</span><span class=p>,</span> <span class=n>v</span><span class=o>=</span><span class=mi>3</span><span class=p>):</span>
+        <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>        获取打卡日历
+</span><span class=s2>        :param year: 年份, 不提供时为当前年份
+</span><span class=s2>        :param month: 月份, 不提供时为当前月份
+</span><span class=s2>        :param user_id: 用户ID, 不提供时为登陆用户id
+</span><span class=s2>        :param v: 返回的结果详细程度,
+</span><span class=s2>            1 只返回相应日期是否打卡
+</span><span class=s2>            3 返回相应日期的打卡id和打卡天数, 没打卡则为空
+</span><span class=s2>            2 在 3 的基础上添加了分享相关的数据
+</span><span class=s2>        &#34;&#34;&#34;</span>
+        <span class=n>d</span> <span class=o>=</span> <span class=n>datetime</span><span class=o>.</span><span class=n>today</span><span class=p>()</span>
+        <span class=k>if</span> <span class=n>year</span> <span class=ow>is</span> <span class=bp>None</span><span class=p>:</span>
+            <span class=n>year</span> <span class=o>=</span> <span class=n>d</span><span class=o>.</span><span class=n>year</span>
+        <span class=k>if</span> <span class=n>month</span> <span class=ow>is</span> <span class=bp>None</span><span class=p>:</span>
+            <span class=n>month</span> <span class=o>=</span> <span class=n>d</span><span class=o>.</span><span class=n>month</span>
+        <span class=k>if</span> <span class=n>user_id</span> <span class=ow>is</span> <span class=bp>None</span><span class=p>:</span>
+            <span class=n>user_id</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>user</span><span class=p>[</span><span class=s2>&#34;user_id&#34;</span><span class=p>]</span>
+        <span class=n>checkins</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>session</span><span class=o>.</span><span class=n>get</span><span class=p>(</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>_urljoin</span><span class=p>(</span><span class=s2>&#34;api/v1/checkin/user/</span><span class=si>%s</span><span class=s2>/&#34;</span> <span class=o>%</span> <span class=n>user_id</span><span class=p>),</span>
+            <span class=n>params</span><span class=o>=</span><span class=p>{</span><span class=s2>&#34;year&#34;</span><span class=p>:</span> <span class=n>year</span><span class=p>,</span> <span class=s2>&#34;month&#34;</span><span class=p>:</span> <span class=n>month</span><span class=p>,</span> <span class=s2>&#34;v&#34;</span><span class=p>:</span> <span class=n>v</span><span class=p>}</span>
+        <span class=p>)</span><span class=o>.</span><span class=n>json</span><span class=p>()</span>
+        <span class=n>checkins</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_check_response_status</span><span class=p>(</span><span class=n>checkins</span><span class=p>)</span>
+        <span class=k>return</span> <span class=n>checkins</span>
+
+    <span class=k>def</span> <span class=nf>get_checkin_detail</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>checkin_id</span><span class=p>,</span> <span class=n>user_id</span><span class=o>=</span><span class=bp>None</span><span class=p>):</span>
+        <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>        获取打卡详情
+</span><span class=s2>        :param checkin_id: 打卡记录id
+</span><span class=s2>        :param user_id: 用户ID, 不提供时为登陆用户id
+</span><span class=s2>        &#34;&#34;&#34;</span>
+        <span class=k>if</span> <span class=n>user_id</span> <span class=ow>is</span> <span class=bp>None</span><span class=p>:</span>
+            <span class=n>user_id</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>user</span><span class=p>[</span><span class=s2>&#34;user_id&#34;</span><span class=p>]</span>
+        <span class=n>checkin_detail</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>session</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_urljoin</span><span class=p>(</span><span class=s2>&#34;/api/v1/checkin/{}/{}/&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>user_id</span><span class=p>,</span> <span class=n>checkin_id</span><span class=p>)))</span><span class=o>.</span><span class=n>json</span><span class=p>()</span>
+        <span class=n>checkin_detail</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_check_response_status</span><span class=p>(</span><span class=n>checkin_detail</span><span class=p>)</span>
+        <span class=k>return</span> <span class=n>checkin_detail</span>
+
+    <span class=k>def</span> <span class=nf>export2ical</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>use_todo</span><span class=o>=</span><span class=bp>True</span><span class=p>):</span>
+        <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>        将打卡记录导出为ical
+</span><span class=s2>        :param use_todo: 是否使用 TODO 作为记录, false 时使用 Event 作为记录
+</span><span class=s2>        :return:
+</span><span class=s2>        &#34;&#34;&#34;</span>
+        <span class=bp>cls</span> <span class=o>=</span> <span class=n>icalendar</span><span class=o>.</span><span class=n>Todo</span> <span class=k>if</span> <span class=n>use_todo</span> <span class=k>else</span> <span class=n>icalendar</span><span class=o>.</span><span class=n>Event</span>
+        <span class=c1># https://zh.wikipedia.org/wiki/ICalendar</span>
+        <span class=c1># http://icalendar.readthedocs.io/en/latest</span>
+        <span class=c1># https://tools.ietf.org/html/rfc5545</span>
+        <span class=n>cal</span> <span class=o>=</span> <span class=n>icalendar</span><span class=o>.</span><span class=n>Calendar</span><span class=p>()</span>
+        <span class=n>cal</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=s2>&#34;X-WR-TIMEZONE&#34;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_checkin_date</span><span class=p>()[</span><span class=s2>&#34;timezone&#34;</span><span class=p>])</span>
+        <span class=n>cal</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=s1>&#39;X-WR-CALNAME&#39;</span><span class=p>,</span> <span class=s2>&#34;{[nickname]}的扇贝打卡日历&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>user</span><span class=p>))</span>
+
+        <span class=n>d</span> <span class=o>=</span> <span class=n>datetime</span><span class=o>.</span><span class=n>today</span><span class=p>()</span>
+        <span class=n>year</span> <span class=o>=</span> <span class=n>d</span><span class=o>.</span><span class=n>year</span>
+        <span class=n>month</span> <span class=o>=</span> <span class=n>d</span><span class=o>.</span><span class=n>month</span>
+        <span class=c1># 扇贝 2011 才创立</span>
+        <span class=n>day</span> <span class=o>=</span> <span class=p>(</span><span class=n>year</span> <span class=o>-</span> <span class=mi>2011</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span> <span class=o>*</span> <span class=mi>365</span>
+        <span class=c1># 记录计数, 用于确认实际导出数量与服务器记录天数一致</span>
+        <span class=n>count</span> <span class=o>=</span> <span class=mi>0</span>
+        <span class=c1># 当打卡天数更新到第一天时表示所有记录已导出</span>
+        <span class=k>while</span> <span class=n>day</span> <span class=o>!=</span> <span class=mi>1</span><span class=p>:</span>
+            <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;获取{}年{}月的打卡详情&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>year</span><span class=p>,</span> <span class=n>month</span><span class=p>))</span>
+            <span class=n>checks</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_checkins</span><span class=p>(</span><span class=n>year</span><span class=p>,</span> <span class=n>month</span><span class=p>)</span>
+            <span class=n>dates</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span><span class=n>checks</span><span class=o>.</span><span class=n>keys</span><span class=p>(),</span> <span class=n>reverse</span><span class=o>=</span><span class=bp>True</span><span class=p>)</span>
+            <span class=k>for</span> <span class=n>c</span> <span class=ow>in</span> <span class=n>checks</span><span class=o>.</span><span class=n>values</span><span class=p>():</span>
+                <span class=c1># 没有打卡的天数内容为空</span>
+                <span class=k>if</span> <span class=ow>not</span> <span class=n>c</span><span class=p>:</span>
+                    <span class=k>continue</span>
+                <span class=n>checkin_detail</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_checkin_detail</span><span class=p>(</span><span class=n>c</span><span class=p>[</span><span class=s2>&#34;id&#34;</span><span class=p>])</span>
+                <span class=n>day</span> <span class=o>=</span> <span class=nb>min</span><span class=p>(</span><span class=n>day</span><span class=p>,</span> <span class=n>checkin_detail</span><span class=p>[</span><span class=s2>&#34;num_checkin_days&#34;</span><span class=p>])</span>
+                <span class=c1># &#34;事件&#34;组件更具通用性, Google 日历不支持&#34;待办&#34;组件</span>
+                <span class=n>item</span> <span class=o>=</span> <span class=bp>cls</span><span class=p>(</span>
+                    <span class=n>SUMMARY</span><span class=o>=</span><span class=s2>&#34;扇贝打卡-{}&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>checkin_detail</span><span class=p>[</span><span class=s2>&#34;num_checkin_days&#34;</span><span class=p>]),</span>
+                    <span class=c1># 开始时间为打卡当天零点</span>
+                    <span class=n>DTSTART</span><span class=o>=</span><span class=n>icalendar</span><span class=o>.</span><span class=n>vDatetime</span><span class=p>(</span><span class=n>datetime</span><span class=o>.</span><span class=n>strptime</span><span class=p>(</span><span class=n>checkin_detail</span><span class=p>[</span><span class=s2>&#34;checkin_date&#34;</span><span class=p>],</span> <span class=s2>&#34;%Y-%m-</span><span class=si>%d</span><span class=s2>&#34;</span><span class=p>)),</span>
+                    <span class=c1># 结束时间为打卡时间</span>
+                    <span class=n>DTEND</span><span class=o>=</span><span class=n>icalendar</span><span class=o>.</span><span class=n>vDatetime</span><span class=p>(</span><span class=n>datetime</span><span class=o>.</span><span class=n>strptime</span><span class=p>(</span><span class=n>checkin_detail</span><span class=p>[</span><span class=s2>&#34;checkin_time&#34;</span><span class=p>],</span> <span class=s2>&#34;%Y-%m-</span><span class=si>%d</span><span class=s2>T%H:%M:%S&#34;</span><span class=p>)),</span>
+                    <span class=c1># 任务描述为打卡时间统计与打卡日记</span>
+                    <span class=n>DESCRIPTION</span><span class=o>=</span><span class=s2>&#34;{}</span><span class=se>\n</span><span class=s2>{}&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>checkin_detail</span><span class=p>[</span><span class=s2>&#34;info&#34;</span><span class=p>],</span> <span class=n>checkin_detail</span><span class=p>[</span><span class=s2>&#34;note&#34;</span><span class=p>])</span>
+                <span class=p>)</span>
+                <span class=c1># https://tools.ietf.org/html/rfc5545#section-3.2.12</span>
+                <span class=k>if</span> <span class=n>use_todo</span><span class=p>:</span>
+                    <span class=n>item</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=s2>&#34;STATUS&#34;</span><span class=p>,</span> <span class=s2>&#34;COMPLETED&#34;</span><span class=p>)</span>
+                <span class=k>else</span><span class=p>:</span>
+                    <span class=n>item</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=s2>&#34;STATUS&#34;</span><span class=p>,</span> <span class=s2>&#34;ACCEPTED&#34;</span><span class=p>)</span>
+                <span class=n>cal</span><span class=o>.</span><span class=n>add_component</span><span class=p>(</span><span class=n>item</span><span class=p>)</span>
+                <span class=n>count</span> <span class=o>+=</span> <span class=mi>1</span>
+            <span class=c1># 当前月份记录已添加, 月份调整到上一个月份</span>
+            <span class=n>month</span> <span class=o>-=</span> <span class=mi>1</span>
+            <span class=c1># 当月份为0表示本年度记录已添加, 月份由1月调整到上一个月份, 即12月, 年份相应的上调一年</span>
+            <span class=k>if</span> <span class=n>month</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+                <span class=n>month</span> <span class=o>=</span> <span class=mi>12</span>
+                <span class=n>year</span> <span class=o>-=</span> <span class=mi>1</span>
+        <span class=c1># 检查导出记录数量是否与服务器记录天数一致</span>
+        <span class=k>assert</span> <span class=n>count</span> <span class=o>==</span> <span class=bp>self</span><span class=o>.</span><span class=n>user</span><span class=p>[</span><span class=s2>&#34;checkin_days&#34;</span><span class=p>]</span>
+        <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;共导出 {} 条打卡记录&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>count</span><span class=p>))</span>
+        <span class=k>return</span> <span class=n>cal</span>
+
+
+<span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s1>&#39;__main__&#39;</span><span class=p>:</span>
+    <span class=n>sb</span> <span class=o>=</span> <span class=n>Shanbay</span><span class=p>(</span><span class=s2>&#34;扇贝账号&#34;</span><span class=p>,</span> <span class=s2>&#34;密码&#34;</span><span class=p>)</span>
+    <span class=n>cal</span> <span class=o>=</span> <span class=n>sb</span><span class=o>.</span><span class=n>export2ical</span><span class=p>()</span>
+    <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=s1>&#39;shanbay.ics&#39;</span><span class=p>,</span> <span class=s1>&#39;wb&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>fp</span><span class=p>:</span>
+        <span class=n>fp</span><span class=o>.</span><span class=n>write</span><span class=p>(</span><span class=n>cal</span><span class=o>.</span><span class=n>to_ical</span><span class=p>())</span>
+
+</code></pre></td></tr></table></div></div><p>如果你想将你打卡日历导出，只需将最下面的“扇贝账号”，“密码”替换成你响应的账号密码后运行此脚本，即可在当前目录获得导出的<code>shanbay.ics</code>文件。</p><p>以嘀嗒清单为例，导入步骤如下图:</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/chrome_2017-03-25_15-59-57.png data-srcset="https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/img/chrome_2017-03-25_15-59-57.png, img/chrome_2017-03-25_15-59-57.png 1.5x, https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/img/chrome_2017-03-25_15-59-57.png 2x" data-sizes=auto alt=/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/img/chrome_2017-03-25_15-59-57.png title=chrome_2017-03-25_15-59-57></p><p>需要注意的是，导入到的清单最好是一个新建的空白清单，因为导入到非空清单后你要是想重新导入需要删除原来的数据。</p><p>最终的使用效果:</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/chrome_2017-03-25_16-09-01.png data-srcset="https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/img/chrome_2017-03-25_16-09-01.png, img/chrome_2017-03-25_16-09-01.png 1.5x, https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/img/chrome_2017-03-25_16-09-01.png 2x" data-sizes=auto alt=/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/img/chrome_2017-03-25_16-09-01.png title=chrome_2017-03-25_16-09-01></p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2017-03-25</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/ data-title=使用Python导出扇贝应用打卡日历 data-hashtags=扇贝,日历><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/ data-hashtag=扇贝><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/ data-title=使用Python导出扇贝应用打卡日历 data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/ data-title=使用Python导出扇贝应用打卡日历><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/ data-title=使用Python导出扇贝应用打卡日历><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/ data-title=使用Python导出扇贝应用打卡日历 data-description><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/ data-title=使用Python导出扇贝应用打卡日历 data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://www.elonzh.com/%E4%BD%BF%E7%94%A8python%E5%AF%BC%E5%87%BA%E6%89%87%E8%B4%9D%E5%BA%94%E7%94%A8%E6%89%93%E5%8D%A1%E6%97%A5%E5%8E%86/ data-title=使用Python导出扇贝应用打卡日历><i class="fab fa-evernote fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=https://www.elonzh.com/tags/%E6%89%87%E8%B4%9D/>扇贝</a>,&nbsp;<a href=https://www.elonzh.com/tags/%E6%97%A5%E5%8E%86/>日历</a></section><section><span><a href=javascript:void(0); onclick=window.history.back();>返回</a></span>&nbsp;|&nbsp;<span><a href=https://www.elonzh.com/>主页</a></span></section></div><div class=post-nav><a href=https://www.elonzh.com/jupyter-notebook-%E5%89%8D%E7%AB%AF%E4%BA%A4%E4%BA%92%E9%83%A8%E4%BB%B6%E5%AE%9E%E7%8E%B0/ class=prev rel=prev title="Jupyter Notebook 前端交互部件实现"><i class="fas fa-angle-left fa-fw"></i>Jupyter Notebook 前端交互部件实现</a>
+<a href=https://www.elonzh.com/http%E8%AF%B7%E6%B1%82%E6%8C%87%E7%BA%B9%E7%9A%84%E8%AE%A1%E7%AE%97/ class=next rel=next title=HTTP请求指纹的计算>HTTP请求指纹的计算<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=disqus_thread class=comment></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://disqus.com/?ref_noscript>Disqus</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.68.3">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i>LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2019 - 2020</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://www.elonzh.com/ target=_blank>Elon Zhou</a></span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i></a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><link rel=stylesheet href=https://www.elonzh.com/lib/katex/katex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/katex/copy-tex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=https://elonzh.disqus.com/embed.js defer></script><script type=text/javascript src=https://www.elonzh.com/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/sharer/sharer.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/katex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/auto-render.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/copy-tex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/mhchem.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":30},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","lunrIndexURL":"/index.json","lunrLanguageCode":"zh","lunrSegmentitURL":"/lib/lunr/lunr.segmentit.js","maxResultLength":10,"noResultsFound":"没有找到结果","snippetLength":50,"type":"lunr"}};</script><script type=text/javascript src=https://www.elonzh.com/js/theme.min.js></script></body></html>

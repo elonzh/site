@@ -1,0 +1,87 @@
+apiVersion: project.cattle.io/v3
+kind: PipelineExecution
+metadata:
+  annotations:
+    lifecycle.cattle.io/create.pipeline-execution-controller_c-vqqlf: "true"
+    pipeline.project.cattle.io/local-registry-port: "34153"
+  creationTimestamp: "2020-06-01T06:52:46Z"
+  finalizers:
+    - clusterscoped.controller.cattle.io/pipeline-execution-controller_c-vqqlf
+  generation: 13
+  labels:
+    cattle.io/creator: norman
+    pipeline.project.cattle.io/finish: "true"
+  name: p-wdg7z-25
+  namespace: p-p4ls4
+  ...
+spec:
+  ...
+  pipelineName: "p-p4ls4:p-wdg7z"
+  projectName: "c-vqqlf:p-p4ls4"
+  run: 25
+  time: "Wed May 27 11:05:24 +0800 2020"
+  triggerUserName: user-765s2
+  triggeredBy: user
+status:
+  conditions:
+    - lastUpdateTime: "2020-06-01T06:52:51Z"
+      status: "True"
+      type: Initialized
+    - lastUpdateTime: "2020-06-01T06:53:37Z"
+      message: >-
+        Running on buildpod.pipeline-p-wdg7z-25.1-zn8f6-b9510 in
+        /home/jenkins/agent/workspace/pipeline_p-wdg7z-25
+      status: "True"
+      type: Provisioned
+    - lastUpdateTime: "2020-06-01T06:54:22Z"
+      message: Error step Node not found
+      reason: Error
+      status: "False"
+      type: Built
+  ended: "2020-06-01T06:54:22Z"
+  executionState: Failed
+  stages:
+    - ended: "2020-06-01T06:50:32Z"
+      started: "2020-06-01T06:50:23Z"
+      state: Success
+      steps:
+        - ended: "2020-06-01T06:50:32Z"
+          started: "2020-06-01T06:50:23Z"
+          state: Success
+    - started: "2020-06-01T06:50:47Z"
+      state: Building
+      steps:
+        - ended: "2020-06-01T06:51:00Z"
+          started: "2020-06-01T06:50:46Z"
+          state: Success
+        - started: "2020-06-01T06:50:47Z"
+          state: Building
+        - started: "2020-06-01T06:50:49Z"
+          state: Building
+        - started: "2020-06-01T06:50:51Z"
+          state: Building
+        - started: "2020-06-01T06:50:52Z"
+          state: Building
+        - started: "2020-06-01T06:50:53Z"
+          state: Building
+        - started: "2020-06-01T06:50:54Z"
+          state: Building
+        - started: "2020-06-01T06:50:56Z"
+          state: Building
+        - started: "2020-06-01T06:50:57Z"
+          state: Building
+        - started: "2020-06-01T06:51:00Z"
+          state: Building
+    - state: Waiting
+      steps:
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+  started: "2020-06-01T06:52:46Z"

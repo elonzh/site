@@ -1,0 +1,199 @@
+{
+    "_links": {
+        "self": {
+            "href": "/job/pipeline_p-wdg7z-24/lastBuild/wfapi/describe"
+        }
+    },
+    "id": "1",
+    "name": "#1",
+    "status": "ABORTED",
+    "startTimeMillis": 1590994179194,
+    "endTimeMillis": 1590994452442,
+    "durationMillis": 273248,
+    "queueDurationMillis": 31,
+    "pauseDurationMillis": 0,
+    "stages": [
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/12/wfapi/describe"
+                }
+            },
+            "id": "12",
+            "name": "Clone",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994211115,
+            "durationMillis": 635,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/16/wfapi/describe"
+                }
+            },
+            "id": "16",
+            "name": "step-0-0",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994211750,
+            "durationMillis": 7551,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/29/wfapi/describe"
+                }
+            },
+            "id": "29",
+            "name": "Build",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994219853,
+            "durationMillis": 1165,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/51/wfapi/describe"
+                }
+            },
+            "id": "51",
+            "name": "step-1-0",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994221018,
+            "durationMillis": 224881,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/53/wfapi/describe"
+                }
+            },
+            "id": "53",
+            "name": "step-1-1",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994221316,
+            "durationMillis": 135982,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/55/wfapi/describe"
+                }
+            },
+            "id": "55",
+            "name": "step-1-2",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994221518,
+            "durationMillis": 226629,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/57/wfapi/describe"
+                }
+            },
+            "id": "57",
+            "name": "step-1-3",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994221719,
+            "durationMillis": 194181,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/59/wfapi/describe"
+                }
+            },
+            "id": "59",
+            "name": "step-1-4",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994222125,
+            "durationMillis": 211258,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/61/wfapi/describe"
+                }
+            },
+            "id": "61",
+            "name": "step-1-5",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994222350,
+            "durationMillis": 217134,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/63/wfapi/describe"
+                }
+            },
+            "id": "63",
+            "name": "step-1-6",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994222546,
+            "durationMillis": 217270,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/65/wfapi/describe"
+                }
+            },
+            "id": "65",
+            "name": "step-1-7",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994222746,
+            "durationMillis": 218266,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/67/wfapi/describe"
+                }
+            },
+            "id": "67",
+            "name": "step-1-8",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994222931,
+            "durationMillis": 222563,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/69/wfapi/describe"
+                }
+            },
+            "id": "69",
+            "name": "step-1-9",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994223102,
+            "durationMillis": 224275,
+            "pauseDurationMillis": 0
+        }
+    ]
+}

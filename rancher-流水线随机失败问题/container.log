@@ -1,0 +1,500 @@
+﻿	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processWrite(SSLEngineFilterLayer.java:503) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processQueuedWrites(SSLEngineFilterLayer.java:248) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doSend(SSLEngineFilterLayer.java:200) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doCloseSend(SSLEngineFilterLayer.java:213) 
+	at org.jenkinsci.remoting.protocol.ProtocolStack$Ptr.doCloseSend(ProtocolStack.java:784) 
+	at org.jenkinsci.remoting.protocol.ApplicationLayer.doCloseWrite(ApplicationLayer.java:173) 
+	at org.jenkinsci.remoting.protocol.impl.ChannelApplicationLayer$ByteBufferCommandTransport.closeWrite(ChannelApplicationLayer.java:314) 
+	at hudson.remoting.Channel.close(Channel.java:1452) 
+	at hudson.remoting.Channel.close(Channel.java:1405) 
+	at hudson.slaves.SlaveComputer.closeChannel(SlaveComputer.java:844) 
+	at hudson.slaves.SlaveComputer.access$800(SlaveComputer.java:105) 
+	at hudson.slaves.SlaveComputer$3.run(SlaveComputer.java:753) 
+	at jenkins.util.ContextResettingExecutorService$1.run(ContextResettingExecutorService.java:28) 
+	at jenkins.security.ImpersonatingExecutorService$1.run(ImpersonatingExecutorService.java:59) 
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) 
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266) 
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) 
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) 
+	at java.lang.Thread.run(Thread.java:748) 
+ 
+May 20, 2020 7:03:35 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave deleteSlavePod 
+INFO: Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-4c8jw-17.1-9p7s0-1nwh7 
+May 20, 2020 7:03:35 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave _terminate 
+INFO: Disconnected computer buildpod.pipeline-p-4c8jw-17.1-9p7s0-1nwh7 
+Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-4c8jw-17.1-9p7s0-1nwh7 
+Disconnected computer buildpod.pipeline-p-4c8jw-17.1-9p7s0-1nwh7 
+May 20, 2020 7:03:35 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.PodTemplateStepExecution$PodTemplateCallback finished 
+INFO: Removing pod template buildpod.pipeline_p_4c8jw_17.1-9p7s0 from cloud kubernetes 
+May 20, 2020 7:03:35 AM org.jenkinsci.plugins.workflow.job.WorkflowRun finish 
+INFO: pipeline_p-4c8jw-17 #1 completed: SUCCESS 
+May 20, 2020 7:04:00 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Excess workload after pending Kubernetes agents: 1 
+May 20, 2020 7:04:00 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Template for label buildpod.pipeline_p_sw6jr_15.1: Kubernetes Pod Template 
+May 20, 2020 7:04:00 AM hudson.slaves.NodeProvisioner$StandardStrategyImpl apply 
+INFO: Started provisioning Kubernetes Pod Template from kubernetes with 1 executors. Remaining excess workload: 0 
+May 20, 2020 7:04:02 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Created Pod: p-swdt7-pipeline/buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+May 20, 2020 7:04:02 AM hudson.slaves.NodeProvisioner$2 run 
+INFO: Kubernetes Pod Template provisioning successfully completed. We have now 3 computer(s) 
+May 20, 2020 7:04:02 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Excess workload after pending Kubernetes agents: 0 
+May 20, 2020 7:04:02 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Template for label buildpod.pipeline_p_sw6jr_15.1: Kubernetes Pod Template 
+May 20, 2020 7:04:02 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:04:04 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Excess workload after pending Kubernetes agents: 0 
+May 20, 2020 7:04:04 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Template for label buildpod.pipeline_p_sw6jr_15.1: Kubernetes Pod Template 
+May 20, 2020 7:04:06 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Excess workload after pending Kubernetes agents: 0 
+May 20, 2020 7:04:06 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Template for label buildpod.pipeline_p_sw6jr_15.1: Kubernetes Pod Template 
+May 20, 2020 7:04:20 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:04:21 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-8jzpk-7.1-0z4mb-7cdlr], container: [step-3-0] 
+May 20, 2020 7:04:27 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Pod is running: p-swdt7-pipeline/buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+May 20, 2020 7:04:27 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (0/100): buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+May 20, 2020 7:04:27 AM hudson.TcpSlaveAgentListener$ConnectionHandler run 
+INFO: Accepted JNLP4-connect connection #38 from /10.42.0.253:39938 
+May 20, 2020 7:04:28 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (1/100): buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+May 20, 2020 7:04:29 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (2/100): buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+May 20, 2020 7:04:30 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Excess workload after pending Kubernetes agents: 0 
+May 20, 2020 7:04:30 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Template for label buildpod.pipeline_p_sw6jr_15.1: Kubernetes Pod Template 
+May 20, 2020 7:04:30 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+{"metadata":{},"status":"Success"}May 20, 2020 7:04:31 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+{"metadata":{},"status":"Success"}May 20, 2020 7:04:31 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+{"metadata":{},"status":"Success"}May 20, 2020 7:04:39 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:04:39 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0], container: [step-1-0] 
+May 20, 2020 7:04:45 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave _terminate 
+INFO: Terminating Kubernetes instance for agent buildpod.pipeline-p-8jzpk-7.1-0z4mb-7cdlr 
+May 20, 2020 7:04:45 AM jenkins.slaves.DefaultJnlpSlaveReceiver channelClosed 
+WARNING: Computer.threadPoolForRemoting [#929] for buildpod.pipeline-p-8jzpk-7.1-0z4mb-7cdlr terminated 
+java.nio.channels.ClosedChannelException 
+	at org.jenkinsci.remoting.protocol.impl.ChannelApplicationLayer.onReadClosed(ChannelApplicationLayer.java:209) 
+	at org.jenkinsci.remoting.protocol.ApplicationLayer.onRecvClosed(ApplicationLayer.java:222) 
+	at org.jenkinsci.remoting.protocol.ProtocolStack$Ptr.onRecvClosed(ProtocolStack.java:816) 
+	at org.jenkinsci.remoting.protocol.FilterLayer.onRecvClosed(FilterLayer.java:287) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.onRecvClosed(SSLEngineFilterLayer.java:181) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.switchToNoSecure(SSLEngineFilterLayer.java:283) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processWrite(SSLEngineFilterLayer.java:503) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processQueuedWrites(SSLEngineFilterLayer.java:248) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doSend(SSLEngineFilterLayer.java:200) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doCloseSend(SSLEngineFilterLayer.java:213) 
+	at org.jenkinsci.remoting.protocol.ProtocolStack$Ptr.doCloseSend(ProtocolStack.java:784) 
+	at org.jenkinsci.remoting.protocol.ApplicationLayer.doCloseWrite(ApplicationLayer.java:173) 
+	at org.jenkinsci.remoting.protocol.impl.ChannelApplicationLayer$ByteBufferCommandTransport.closeWrite(ChannelApplicationLayer.java:314) 
+	at hudson.remoting.Channel.close(Channel.java:1452) 
+	at hudson.remoting.Channel.close(Channel.java:1405) 
+	at hudson.slaves.SlaveComputer.closeChannel(SlaveComputer.java:844) 
+	at hudson.slaves.SlaveComputer.access$800(SlaveComputer.java:105) 
+	at hudson.slaves.SlaveComputer$3.run(SlaveComputer.java:753) 
+	at jenkins.util.ContextResettingExecutorService$1.run(ContextResettingExecutorService.java:28) 
+	at jenkins.security.ImpersonatingExecutorService$1.run(ImpersonatingExecutorService.java:59) 
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) 
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266) 
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) 
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) 
+	at java.lang.Thread.run(Thread.java:748) 
+ 
+Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-8jzpk-7.1-0z4mb-7cdlr 
+Disconnected computer buildpod.pipeline-p-8jzpk-7.1-0z4mb-7cdlr 
+May 20, 2020 7:04:45 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave deleteSlavePod 
+INFO: Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-8jzpk-7.1-0z4mb-7cdlr 
+May 20, 2020 7:04:45 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave _terminate 
+INFO: Disconnected computer buildpod.pipeline-p-8jzpk-7.1-0z4mb-7cdlr 
+May 20, 2020 7:04:45 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.PodTemplateStepExecution$PodTemplateCallback finished 
+INFO: Removing pod template buildpod.pipeline_p_8jzpk_7.1-0z4mb from cloud kubernetes 
+May 20, 2020 7:04:46 AM org.jenkinsci.plugins.workflow.job.WorkflowRun finish 
+INFO: pipeline_p-8jzpk-7 #1 completed: SUCCESS 
+May 20, 2020 7:05:33 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:05:34 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0], container: [step-2-0] 
+May 20, 2020 7:05:34 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:05:34 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0], container: [step-2-1] 
+May 20, 2020 7:06:58 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:06:59 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0], container: [step-3-0] 
+May 20, 2020 7:07:22 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave _terminate 
+INFO: Terminating Kubernetes instance for agent buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+May 20, 2020 7:07:22 AM jenkins.slaves.DefaultJnlpSlaveReceiver channelClosed 
+WARNING: Computer.threadPoolForRemoting [#942] for buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 terminated 
+java.nio.channels.ClosedChannelException 
+	at org.jenkinsci.remoting.protocol.impl.ChannelApplicationLayer.onReadClosed(ChannelApplicationLayer.java:209) 
+	at org.jenkinsci.remoting.protocol.ApplicationLayer.onRecvClosed(ApplicationLayer.java:222) 
+	at org.jenkinsci.remoting.protocol.ProtocolStack$Ptr.onRecvClosed(ProtocolStack.java:816) 
+	at org.jenkinsci.remoting.protocol.FilterLayer.onRecvClosed(FilterLayer.java:287) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.onRecvClosed(SSLEngineFilterLayer.java:181) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.switchToNoSecure(SSLEngineFilterLayer.java:283) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processWrite(SSLEngineFilterLayer.java:503) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processQueuedWrites(SSLEngineFilterLayer.java:248) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doSend(SSLEngineFilterLayer.java:200) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doCloseSend(SSLEngineFilterLayer.java:213) 
+	at org.jenkinsci.remoting.protocol.ProtocolStack$Ptr.doCloseSend(ProtocolStack.java:784) 
+	at org.jenkinsci.remoting.protocol.ApplicationLayer.doCloseWrite(ApplicationLayer.java:173) 
+	at org.jenkinsci.remoting.protocol.impl.ChannelApplicationLayer$ByteBufferCommandTransport.closeWrite(ChannelApplicationLayer.java:314) 
+	at hudson.remoting.Channel.close(Channel.java:1452) 
+	at hudson.remoting.Channel.close(Channel.java:1405) 
+	at hudson.slaves.SlaveComputer.closeChannel(SlaveComputer.java:844) 
+	at hudson.slaves.SlaveComputer.access$800(SlaveComputer.java:105) 
+	at hudson.slaves.SlaveComputer$3.run(SlaveComputer.java:753) 
+	at jenkins.util.ContextResettingExecutorService$1.run(ContextResettingExecutorService.java:28) 
+	at jenkins.security.ImpersonatingExecutorService$1.run(ImpersonatingExecutorService.java:59) 
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) 
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266) 
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) 
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) 
+	at java.lang.Thread.run(Thread.java:748) 
+ 
+May 20, 2020 7:07:22 AM hudson.remoting.Request$2 run 
+INFO: Failed to send back a reply to the request hudson.remoting.Request$2@5e4735b8: hudson.remoting.ChannelClosedException: Channel "hudson.remoting.Channel@9710d79:JNLP4-connect connection from 10.42.0.253/10.42.0.253:39938": channel is already closed 
+May 20, 2020 7:07:22 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave deleteSlavePod 
+INFO: Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+May 20, 2020 7:07:22 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave _terminate 
+INFO: Disconnected computer buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+Disconnected computer buildpod.pipeline-p-sw6jr-15.1-mxrrv-tfrn0 
+May 20, 2020 7:07:22 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.PodTemplateStepExecution$PodTemplateCallback finished 
+INFO: Removing pod template buildpod.pipeline_p_sw6jr_15.1-mxrrv from cloud kubernetes 
+May 20, 2020 7:07:23 AM org.jenkinsci.plugins.workflow.job.WorkflowRun finish 
+INFO: pipeline_p-sw6jr-15 #1 completed: SUCCESS 
+May 20, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Workspace clean-up 
+May 20, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Workspace clean-up. 1 ms 
+May 20, 2020 7:40:18 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Excess workload after pending Kubernetes agents: 1 
+May 20, 2020 7:40:18 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Template for label buildpod.pipeline_p_qt2b6_22.1: Kubernetes Pod Template 
+May 20, 2020 7:40:18 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:40:18 AM hudson.slaves.NodeProvisioner$StandardStrategyImpl apply 
+INFO: Started provisioning Kubernetes Pod Template from kubernetes with 1 executors. Remaining excess workload: 0 
+May 20, 2020 7:40:20 AM hudson.slaves.NodeProvisioner$2 run 
+INFO: Kubernetes Pod Template provisioning successfully completed. We have now 2 computer(s) 
+May 20, 2020 7:40:20 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Created Pod: p-swdt7-pipeline/buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:40:20 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:40:27 AM hudson.TcpSlaveAgentListener$ConnectionHandler run 
+INFO: Accepted JNLP4-connect connection #39 from /10.42.0.254:37102 
+May 20, 2020 7:40:27 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Pod is running: p-swdt7-pipeline/buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:40:27 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (0/100): buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:40:28 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (1/100): buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:40:29 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (2/100): buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:40:30 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (3/100): buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:40:31 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (4/100): buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:40:32 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (5/100): buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:40:33 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (6/100): buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:40:34 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Excess workload after pending Kubernetes agents: 0 
+May 20, 2020 7:40:34 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Template for label buildpod.pipeline_p_qt2b6_22.1: Kubernetes Pod Template 
+May 20, 2020 7:40:35 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+{"metadata":{},"status":"Success"}May 20, 2020 7:40:35 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+{"metadata":{},"status":"Success"}May 20, 2020 7:40:36 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+{"metadata":{},"status":"Success"}May 20, 2020 7:40:45 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:40:45 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2], container: [step-1-0] 
+May 20, 2020 7:44:10 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:44:10 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2], container: [step-2-0] 
+May 20, 2020 7:46:01 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:46:01 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2], container: [step-3-0] 
+May 20, 2020 7:46:07 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 20, 2020 7:46:08 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2], container: [step-4-0] 
+May 20, 2020 7:46:44 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave _terminate 
+INFO: Terminating Kubernetes instance for agent buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:46:44 AM jenkins.slaves.DefaultJnlpSlaveReceiver channelClosed 
+WARNING: Computer.threadPoolForRemoting [#962] for buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 terminated 
+java.nio.channels.ClosedChannelException 
+	at org.jenkinsci.remoting.protocol.impl.ChannelApplicationLayer.onReadClosed(ChannelApplicationLayer.java:209) 
+	at org.jenkinsci.remoting.protocol.ApplicationLayer.onRecvClosed(ApplicationLayer.java:222) 
+	at org.jenkinsci.remoting.protocol.ProtocolStack$Ptr.onRecvClosed(ProtocolStack.java:816) 
+	at org.jenkinsci.remoting.protocol.FilterLayer.onRecvClosed(FilterLayer.java:287) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.onRecvClosed(SSLEngineFilterLayer.java:181) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.switchToNoSecure(SSLEngineFilterLayer.java:283) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processWrite(SSLEngineFilterLayer.java:503) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processQueuedWrites(SSLEngineFilterLayer.java:248) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doSend(SSLEngineFilterLayer.java:200) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doCloseSend(SSLEngineFilterLayer.java:213) 
+	at org.jenkinsci.remoting.protocol.ProtocolStack$Ptr.doCloseSend(ProtocolStack.java:784) 
+	at org.jenkinsci.remoting.protocol.ApplicationLayer.doCloseWrite(ApplicationLayer.java:173) 
+	at org.jenkinsci.remoting.protocol.impl.ChannelApplicationLayer$ByteBufferCommandTransport.closeWrite(ChannelApplicationLayer.java:314) 
+	at hudson.remoting.Channel.close(Channel.java:1452) 
+	at hudson.remoting.Channel.close(Channel.java:1405) 
+	at hudson.slaves.SlaveComputer.closeChannel(SlaveComputer.java:844) 
+	at hudson.slaves.SlaveComputer.access$800(SlaveComputer.java:105) 
+	at hudson.slaves.SlaveComputer$3.run(SlaveComputer.java:753) 
+	at jenkins.util.ContextResettingExecutorService$1.run(ContextResettingExecutorService.java:28) 
+	at jenkins.security.ImpersonatingExecutorService$1.run(ImpersonatingExecutorService.java:59) 
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) 
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266) 
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) 
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) 
+	at java.lang.Thread.run(Thread.java:748) 
+ 
+May 20, 2020 7:46:44 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave deleteSlavePod 
+INFO: Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:46:44 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave _terminate 
+INFO: Disconnected computer buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+Disconnected computer buildpod.pipeline-p-qt2b6-22.1-zjhrh-115z2 
+May 20, 2020 7:46:44 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.PodTemplateStepExecution$PodTemplateCallback finished 
+INFO: Removing pod template buildpod.pipeline_p_qt2b6_22.1-zjhrh from cloud kubernetes 
+May 20, 2020 7:46:44 AM org.jenkinsci.plugins.workflow.job.WorkflowRun finish 
+INFO: pipeline_p-qt2b6-22 #1 completed: SUCCESS 
+May 20, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Fingerprint cleanup 
+May 20, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Fingerprint cleanup. 33 ms 
+May 20, 2020 11:13:39 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesClientProvider gracefulClose 
+INFO: Closing io.fabric8.kubernetes.client.DefaultKubernetesClient@6e0de5f6 
+May 20, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started telemetry collection 
+May 20, 2020 9:32:47 PM jenkins.telemetry.Telemetry$TelemetryReporter execute 
+INFO: Collection of anonymous usage statistics is disabled, skipping telemetry collection and submission 
+May 20, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished telemetry collection. 0 ms 
+May 21, 2020 1:44:50 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Excess workload after pending Kubernetes agents: 1 
+May 21, 2020 1:44:50 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud provision 
+INFO: Template for label buildpod.pipeline_p_qt2b6_23.1: Kubernetes Pod Template 
+May 21, 2020 1:44:50 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesClientProvider createClient 
+INFO: Created new Kubernetes client: kubernetes io.fabric8.kubernetes.client.DefaultKubernetesClient@1cd636f0 
+May 21, 2020 1:44:50 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 21, 2020 1:44:50 AM hudson.slaves.NodeProvisioner$StandardStrategyImpl apply 
+INFO: Started provisioning Kubernetes Pod Template from kubernetes with 1 executors. Remaining excess workload: 0 
+May 21, 2020 1:44:52 AM hudson.slaves.NodeProvisioner$2 run 
+INFO: Kubernetes Pod Template provisioning successfully completed. We have now 2 computer(s) 
+May 21, 2020 1:44:52 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Created Pod: p-swdt7-pipeline/buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:44:52 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 21, 2020 1:44:55 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Pod is running: p-swdt7-pipeline/buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:44:55 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (0/100): buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:44:56 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (1/100): buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:44:56 AM hudson.TcpSlaveAgentListener$ConnectionHandler run 
+INFO: Accepted JNLP4-connect connection #40 from /10.42.3.166:60144 
+May 21, 2020 1:44:57 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (2/100): buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:44:58 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (3/100): buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:44:59 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (4/100): buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:45:00 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (5/100): buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:45:01 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (6/100): buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:45:02 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (7/100): buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:45:03 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesLauncher launch 
+INFO: Waiting for agent to connect (8/100): buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:45:05 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+{"metadata":{},"status":"Success"}May 21, 2020 1:45:05 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+{"metadata":{},"status":"Success"}May 21, 2020 1:45:06 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+{"metadata":{},"status":"Success"}May 21, 2020 1:45:21 AM okhttp3.internal.platform.Platform log 
+INFO: ALPN callback dropped: HTTP/2 is disabled. Is alpn-boot on the boot class path? 
+May 21, 2020 1:45:21 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1 doLaunch 
+INFO: Created process inside pod: [buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m], container: [step-1-0] 
+May 21, 2020 1:46:38 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave _terminate 
+INFO: Terminating Kubernetes instance for agent buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:46:38 AM jenkins.slaves.DefaultJnlpSlaveReceiver channelClosed 
+WARNING: Computer.threadPoolForRemoting [#992] for buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m terminated 
+java.nio.channels.ClosedChannelException 
+	at org.jenkinsci.remoting.protocol.impl.ChannelApplicationLayer.onReadClosed(ChannelApplicationLayer.java:209) 
+	at org.jenkinsci.remoting.protocol.ApplicationLayer.onRecvClosed(ApplicationLayer.java:222) 
+	at org.jenkinsci.remoting.protocol.ProtocolStack$Ptr.onRecvClosed(ProtocolStack.java:816) 
+	at org.jenkinsci.remoting.protocol.FilterLayer.onRecvClosed(FilterLayer.java:287) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.onRecvClosed(SSLEngineFilterLayer.java:181) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.switchToNoSecure(SSLEngineFilterLayer.java:283) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processWrite(SSLEngineFilterLayer.java:503) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.processQueuedWrites(SSLEngineFilterLayer.java:248) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doSend(SSLEngineFilterLayer.java:200) 
+	at org.jenkinsci.remoting.protocol.impl.SSLEngineFilterLayer.doCloseSend(SSLEngineFilterLayer.java:213) 
+	at org.jenkinsci.remoting.protocol.ProtocolStack$Ptr.doCloseSend(ProtocolStack.java:784) 
+	at org.jenkinsci.remoting.protocol.ApplicationLayer.doCloseWrite(ApplicationLayer.java:173) 
+	at org.jenkinsci.remoting.protocol.impl.ChannelApplicationLayer$ByteBufferCommandTransport.closeWrite(ChannelApplicationLayer.java:314) 
+	at hudson.remoting.Channel.close(Channel.java:1452) 
+	at hudson.remoting.Channel.close(Channel.java:1405) 
+	at hudson.slaves.SlaveComputer.closeChannel(SlaveComputer.java:844) 
+	at hudson.slaves.SlaveComputer.access$800(SlaveComputer.java:105) 
+	at hudson.slaves.SlaveComputer$3.run(SlaveComputer.java:753) 
+	at jenkins.util.ContextResettingExecutorService$1.run(ContextResettingExecutorService.java:28) 
+	at jenkins.security.ImpersonatingExecutorService$1.run(ImpersonatingExecutorService.java:59) 
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) 
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266) 
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) 
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) 
+	at java.lang.Thread.run(Thread.java:748) 
+ 
+May 21, 2020 1:46:38 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave deleteSlavePod 
+INFO: Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:46:38 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesSlave _terminate 
+INFO: Disconnected computer buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+Terminated Kubernetes instance for agent p-swdt7-pipeline/buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+Disconnected computer buildpod.pipeline-p-qt2b6-23.1-4zsdx-4172m 
+May 21, 2020 1:46:39 AM org.csanchez.jenkins.plugins.kubernetes.pipeline.PodTemplateStepExecution$PodTemplateCallback finished 
+INFO: Removing pod template buildpod.pipeline_p_qt2b6_23.1-4zsdx from cloud kubernetes 
+May 21, 2020 1:46:39 AM org.jenkinsci.plugins.workflow.job.WorkflowRun finish 
+INFO: pipeline_p-qt2b6-23 #1 completed: FAILURE 
+May 21, 2020 6:11:10 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Download metadata 
+May 21, 2020 6:11:11 AM hudson.model.DownloadService$Downloadable load 
+INFO: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller 
+May 21, 2020 6:11:11 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Download metadata. 888 ms 
+May 21, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Workspace clean-up 
+May 21, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Workspace clean-up. 1 ms 
+May 21, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Fingerprint cleanup 
+May 21, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Fingerprint cleanup. 17 ms 
+May 21, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started telemetry collection 
+May 21, 2020 9:32:47 PM jenkins.telemetry.Telemetry$TelemetryReporter execute 
+INFO: Collection of anonymous usage statistics is disabled, skipping telemetry collection and submission 
+May 21, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished telemetry collection. 0 ms 
+May 22, 2020 3:13:39 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesClientProvider gracefulClose 
+INFO: Closing io.fabric8.kubernetes.client.DefaultKubernetesClient@1cd636f0 
+May 22, 2020 6:11:10 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Download metadata 
+May 22, 2020 6:11:13 AM hudson.model.DownloadService$Downloadable load 
+INFO: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller 
+May 22, 2020 6:11:13 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Download metadata. 2,846 ms 
+May 22, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Workspace clean-up 
+May 22, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Workspace clean-up. 1 ms 
+May 22, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Fingerprint cleanup 
+May 22, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Fingerprint cleanup. 16 ms 
+May 22, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started telemetry collection 
+May 22, 2020 9:32:47 PM jenkins.telemetry.Telemetry$TelemetryReporter execute 
+INFO: Collection of anonymous usage statistics is disabled, skipping telemetry collection and submission 
+May 22, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished telemetry collection. 1 ms 
+May 23, 2020 6:11:10 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Download metadata 
+May 23, 2020 6:11:12 AM hudson.model.DownloadService$Downloadable load 
+INFO: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller 
+May 23, 2020 6:11:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Download metadata. 2,223 ms 
+May 23, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Workspace clean-up 
+May 23, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Workspace clean-up. 0 ms 
+May 23, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Fingerprint cleanup 
+May 23, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Fingerprint cleanup. 13 ms 
+May 23, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started telemetry collection 
+May 23, 2020 9:32:47 PM jenkins.telemetry.Telemetry$TelemetryReporter execute 
+INFO: Collection of anonymous usage statistics is disabled, skipping telemetry collection and submission 
+May 23, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished telemetry collection. 0 ms 
+May 24, 2020 6:11:10 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Download metadata 
+May 24, 2020 6:11:13 AM hudson.model.DownloadService$Downloadable load 
+INFO: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller 
+May 24, 2020 6:11:13 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Download metadata. 3,534 ms 
+May 24, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Workspace clean-up 
+May 24, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Workspace clean-up. 1 ms 
+May 24, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Fingerprint cleanup 
+May 24, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Fingerprint cleanup. 10 ms 
+May 24, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started telemetry collection 
+May 24, 2020 9:32:47 PM jenkins.telemetry.Telemetry$TelemetryReporter execute 
+INFO: Collection of anonymous usage statistics is disabled, skipping telemetry collection and submission 
+May 24, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished telemetry collection. 0 ms 
+May 25, 2020 6:11:10 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Download metadata 
+May 25, 2020 6:11:11 AM hudson.model.DownloadService$Downloadable load 
+INFO: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller 
+May 25, 2020 6:11:11 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Download metadata. 1,491 ms 
+May 25, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Workspace clean-up 
+May 25, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Workspace clean-up. 1 ms 
+May 25, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Fingerprint cleanup 
+May 25, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Fingerprint cleanup. 9 ms 
+May 25, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started telemetry collection 
+May 25, 2020 9:32:47 PM jenkins.telemetry.Telemetry$TelemetryReporter execute 
+INFO: Collection of anonymous usage statistics is disabled, skipping telemetry collection and submission 
+May 25, 2020 9:32:47 PM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished telemetry collection. 0 ms 
+May 26, 2020 6:11:10 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Download metadata 
+May 26, 2020 6:11:12 AM hudson.model.DownloadService$Downloadable load 
+INFO: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller 
+May 26, 2020 6:11:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Download metadata. 2,143 ms 
+May 26, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Workspace clean-up 
+May 26, 2020 7:23:12 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Workspace clean-up. 1 ms 
+May 26, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Started Fingerprint cleanup 
+May 26, 2020 9:08:08 AM hudson.model.AsyncPeriodicWork$1 run 
+INFO: Finished Fingerprint cleanup. 13 ms 
+May 26, 2020 9:11:37 AM org.csanchez.jenkins.plugins.kubernetes.KubernetesClientProvider$SaveableListenerImpl onChange 
+INFO: Invalidating Kubernetes client: kubernetes null 

@@ -1,0 +1,19 @@
+{
+    "_links": {
+        "self": {
+            "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/59/wfapi/describe"
+        }
+    },
+    "id": "59",
+    "name": "step-1-4",
+    "execNode": "",
+    "status": "FAILED",
+    "error": {
+        "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+        "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+    },
+    "startTimeMillis": 1590994252280,
+    "durationMillis": 106961,
+    "pauseDurationMillis": 0,
+    "stageFlowNodes": []
+}

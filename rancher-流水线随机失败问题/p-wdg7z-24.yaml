@@ -1,0 +1,94 @@
+apiVersion: project.cattle.io/v3
+kind: PipelineExecution
+metadata:
+  annotations:
+    lifecycle.cattle.io/create.pipeline-execution-controller_c-vqqlf: "true"
+    pipeline.project.cattle.io/local-registry-port: "34153"
+  creationTimestamp: "2020-06-01T06: 52: 40Z"
+  finalizers:
+    - clusterscoped.controller.cattle.io/pipeline-execution-controller_c-vqqlf
+  generation: 15
+  labels:
+    cattle.io/creator: norman
+    pipeline.project.cattle.io/finish: "true"
+  name: p-wdg7z-24
+  namespace: p-p4ls4
+  ...
+spec:
+  ...
+  pipelineName: "p-p4ls4:p-wdg7z"
+  projectName: "c-vqqlf:p-p4ls4"
+  run: 24
+  time: "Wed May 27 11: 05: 24 +0800 2020"
+  triggerUserName: user-765s2
+  triggeredBy: user
+status:
+  conditions:
+    - lastUpdateTime: "2020-06-01T06: 52: 46Z"
+      status: "True"
+      type: Initialized
+    - lastUpdateTime: "2020-06-01T06: 53: 26Z"
+      message: >-
+        Running on buildpod.pipeline-p-wdg7z-24.1-knwj7-rg94z in
+        /home/jenkins/agent/workspace/pipeline_p-wdg7z-24
+      status: "True"
+      type: Provisioned
+    - lastUpdateTime: "2020-06-01T06: 57: 21Z"
+      message: Error step Node not found
+      reason: Error
+      status: "False"
+      type: Built
+  ended: "2020-06-01T06: 57: 21Z"
+  executionState: Failed
+  stages:
+    - ended: "2020-06-01T06: 50: 19Z"
+      started: "2020-06-01T06: 50: 11Z"
+      state: Success
+      steps:
+        - ended: "2020-06-01T06: 50: 19Z"
+          started: "2020-06-01T06: 50: 11Z"
+          state: Success
+    - started: "2020-06-01T06: 50: 21Z"
+      state: Building
+      steps:
+        - ended: "2020-06-01T06: 50: 21Z"
+          started: "2020-06-01T06: 50: 21Z"
+          state: Success
+        - ended: "2020-06-01T06: 52: 37Z"
+          started: "2020-06-01T06: 50: 21Z"
+          state: Success
+        - started: "2020-06-01T06: 50: 21Z"
+          state: Building
+        - ended: "2020-06-01T06: 53: 35Z"
+          started: "2020-06-01T06: 50: 21Z"
+          state: Success
+        - ended: "2020-06-01T06: 53: 53Z"
+          started: "2020-06-01T06: 50: 22Z"
+          state: Success
+        - ended: "2020-06-01T06: 53: 59Z"
+          started: "2020-06-01T06: 50: 22Z"
+          state: Success
+        - ended: "2020-06-01T06: 53: 59Z"
+          started: "2020-06-01T06: 50: 22Z"
+          state: Success
+        - ended: "2020-06-01T06: 54: 01Z"
+          started: "2020-06-01T06: 50: 22Z"
+          state: Success
+        - started: "2020-06-01T06: 50: 22Z"
+          state: Building
+        - ended: "2020-06-01T06: 54: 07Z"
+          started: "2020-06-01T06: 50: 23Z"
+          state: Success
+    - state: Waiting
+      steps:
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+        - state: Waiting
+  started: "2020-06-01T06: 52: 40Z"

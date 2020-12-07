@@ -1,0 +1,146 @@
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+def label = "buildpod.${env.JOB_NAME}.${env.BUILD_NUMBER}".replace('-', '_').replace('/', '_')
+podTemplate(label: label, instanceCap: 1, yaml: '''
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    app: jenkins
+    execution: p-dv8kn-5
+  namespace: p-f5pd2-pipeline
+spec:
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - preference:
+          matchExpressions:
+          - key: pipeline.project.cattle.io/node
+            operator: In
+            values:
+            - jenkins
+        weight: 100
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - jenkins
+          topologyKey: kubernetes.io/hostname
+        weight: 100
+  containers:
+  - command:
+    - cat
+    env:
+    - name: CICD_EVENT
+      value: push
+    - name: CICD_PROJECT_ID
+      value: p-f5pd2
+    - name: CICD_LOCAL_REGISTRY
+      value: 127.0.0.1:34448
+    - name: CICD_GIT_REPO_NAME
+      value: pipeline-test
+    - name: CICD_GIT_REF
+      value: refs/heads/sample-pipeline
+    - name: CICD_GIT_BRANCH
+      value: sample-pipeline
+    - name: CICD_GIT_URL
+      value: http://gitlab.yzf.net/zhouerliang/pipeline-test.git
+    - name: CICD_TRIGGER_TYPE
+      value: webhook
+    - name: CICD_GIT_COMMIT
+      value: d4d0f44
+    - name: CICD_PIPELINE_ID
+      value: p-dv8kn
+    - name: CICD_EXECUTION_ID
+      value: p-dv8kn-5
+    - name: CICD_EXECUTION_SEQUENCE
+      value: "5"
+    - name: CICD_CLUSTER_ID
+      value: c-64wdm
+    image: harbor.yzf.best:1180/rancher/pipeline-tools:v0.1.14
+    name: step-0-0
+    resources:
+      limits:
+        cpu: 300m
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 10Mi
+    tty: true
+  # ... 删除了冗余的定义 ... 
+  - args:
+    - $(JENKINS_SECRET)
+    - $(JENKINS_NAME)
+    env:
+    # ... 删除了冗余的定义 ... 
+    image: rancher/jenkins-jnlp-slave:3.35-4
+    name: jnlp
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1Gi
+      requests:
+        cpu: 10m
+        memory: 10Mi
+  imagePullSecrets:
+  - name: pipeline-docker-registry
+  - name: pipeline-harbor-registry
+  serviceAccountName: jenkins
+  volumes:
+  - name: crt
+    secret:
+      secretName: registry-crt
+status: {}
+
+'''
+) {
+    node(label) {
+        timestamps {
+            timeout(60) {
+                stage('Clone'){
+                    parallel 'step-0-0': {
+                        stage('step-0-0'){
+                            container(name: 'step-0-0') {
+                                checkout([$class: 'GitSCM', branches: [[name: 'local/temp']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CloneOption', honorRefspec: true, noTags: false, reference: '', shallow: true]], userRemoteConfigs: [[url: 'http://gitlab.yzf.net/zhouerliang/pipeline-test.git', refspec: '+refs/heads/sample-pipeline:refs/remotes/local/temp', credentialsId: 'p-dv8kn-5']]])
+                            }
+                        }
+                    }
+                }
+                stage('Stage1'){
+                    parallel 'step-1-0': {
+                        stage('step-1-0'){
+                            container(name: 'step-1-0') {
+                                sh ''' echo "this is stage 1 step 1" '''
+                            }
+                        }
+                    },'step-1-1': {
+                        stage('step-1-1'){
+                            container(name: 'step-1-1') {
+                                sh ''' echo "this is stage 1 step 2" '''
+                            }
+                        }
+                    }
+                }
+                stage('Stage2'){
+                    parallel 'step-2-0': {
+                        stage('step-2-0'){
+                            container(name: 'step-2-0') {
+                                sh ''' echo "this is stage 2 step 1" '''
+                            }
+                        }
+                    },'step-2-1': {
+                        stage('step-2-1'){
+                            container(name: 'step-2-1') {
+                                sh ''' echo "this is stage 2 step 2" '''
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

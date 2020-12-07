@@ -1,0 +1,40 @@
+{
+    "_links": {
+        "self": {
+            "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/51/wfapi/describe"
+        }
+    },
+    "id": "51",
+    "name": "step-1-0",
+    "execNode": "",
+    "status": "SUCCESS",
+    "startTimeMillis": 1590994221018,
+    "durationMillis": 224881,
+    "pauseDurationMillis": 0,
+    "stageFlowNodes": [
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/90/wfapi/describe"
+                },
+                "log": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/90/wfapi/log"
+                },
+                "console": {
+                    "href": "/job/pipeline_p-wdg7z-24/lastBuild/execution/node/90/log"
+                }
+            },
+            "id": "90",
+            "name": "Shell Script",
+            "execNode": "",
+            "status": "SUCCESS",
+            "parameterDescription": " go env -w GO111MODULE=on\ngo env -w GOPROXY=https://goproxy.cn,direct\ngo install github.com/gohugoio/hugo ",
+            "startTimeMillis": 1590994224748,
+            "durationMillis": 220648,
+            "pauseDurationMillis": 0,
+            "parentNodes": [
+                "71"
+            ]
+        }
+    ]
+}

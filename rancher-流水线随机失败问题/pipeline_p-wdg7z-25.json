@@ -1,0 +1,239 @@
+{
+    "_links": {
+        "self": {
+            "href": "/job/pipeline_p-wdg7z-25/lastBuild/wfapi/describe"
+        }
+    },
+    "id": "1",
+    "name": "#1",
+    "status": "FAILED",
+    "startTimeMillis": 1590994187894,
+    "endTimeMillis": 1590994442120,
+    "durationMillis": 254226,
+    "queueDurationMillis": 32,
+    "pauseDurationMillis": 0,
+    "stages": [
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/12/wfapi/describe"
+                }
+            },
+            "id": "12",
+            "name": "Clone",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994222893,
+            "durationMillis": 397,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/16/wfapi/describe"
+                }
+            },
+            "id": "16",
+            "name": "step-0-0",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994223290,
+            "durationMillis": 9534,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/29/wfapi/describe"
+                }
+            },
+            "id": "29",
+            "name": "Build",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994238126,
+            "durationMillis": 8389,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/51/wfapi/describe"
+                }
+            },
+            "id": "51",
+            "name": "step-1-0",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994246515,
+            "durationMillis": 144888,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/53/wfapi/describe"
+                }
+            },
+            "id": "53",
+            "name": "step-1-1",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994247864,
+            "durationMillis": 144681,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/55/wfapi/describe"
+                }
+            },
+            "id": "55",
+            "name": "step-1-2",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994249469,
+            "durationMillis": 143731,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/57/wfapi/describe"
+                }
+            },
+            "id": "57",
+            "name": "step-1-3",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994251101,
+            "durationMillis": 143418,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/59/wfapi/describe"
+                }
+            },
+            "id": "59",
+            "name": "step-1-4",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994252280,
+            "durationMillis": 106961,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/61/wfapi/describe"
+                }
+            },
+            "id": "61",
+            "name": "step-1-5",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994253745,
+            "durationMillis": 106400,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/63/wfapi/describe"
+                }
+            },
+            "id": "63",
+            "name": "step-1-6",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994254835,
+            "durationMillis": 108428,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/65/wfapi/describe"
+                }
+            },
+            "id": "65",
+            "name": "step-1-7",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994256264,
+            "durationMillis": 112089,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/67/wfapi/describe"
+                }
+            },
+            "id": "67",
+            "name": "step-1-8",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994257758,
+            "durationMillis": 112765,
+            "pauseDurationMillis": 0
+        },
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/69/wfapi/describe"
+                }
+            },
+            "id": "69",
+            "name": "step-1-9",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "startTimeMillis": 1590994260226,
+            "durationMillis": 111112,
+            "pauseDurationMillis": 0
+        }
+    ]
+}

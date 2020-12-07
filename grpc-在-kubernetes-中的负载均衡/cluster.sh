@@ -1,0 +1,13 @@
+minikube delete && minikube start \
+  --image-mirror-country=cn \
+  --image-repository=auto \
+  --iso-url="https://kubernetes.oss-cn-hangzhou.aliyuncs.com/minikube/iso/minikube-v1.10.0.iso" \
+  --registry-mirror="https://lznzc04k.mirror.aliyuncs.com" \
+  --kubernetes-version=v1.18.1 \
+  --bootstrapper=kubeadm \
+  --extra-config=kubelet.authentication-token-webhook=true \
+  --extra-config=kubelet.authorization-mode=Webhook \
+  --extra-config=scheduler.address=0.0.0.0 \
+  --extra-config=controller-manager.address=0.0.0.0 \
+  --cpus=4 \
+  --memory=8g

@@ -1,0 +1,16 @@
+{
+    "_links": {
+        "self": {
+            "href": "/job/pipeline_p-wdg7z-19/lastBuild/wfapi/describe"
+        }
+    },
+    "id": "1",
+    "name": "#1",
+    "status": "IN_PROGRESS",
+    "startTimeMillis": 1590992017371,
+    "endTimeMillis": 1590992018936,
+    "durationMillis": 1565,
+    "queueDurationMillis": 32,
+    "pauseDurationMillis": 0,
+    "stages": []
+}

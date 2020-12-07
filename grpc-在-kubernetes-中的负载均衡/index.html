@@ -1,0 +1,596 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>gRPC 在 Kubernetes 中的负载均衡 - Life Log</title><meta name=Description content="这是我的全新 Hugo 网站"><meta property="og:title" content="gRPC 在 Kubernetes 中的负载均衡"><meta property="og:description" content="背景 新公司服务在往 Kubernetes 上迁移，让我着手处理一个负载不均衡的问题，给到的描述是一个前台服务提供 API，后面挂两个 TensorFlow Model Server，其中后面的俩个"><meta property="og:type" content="article"><meta property="og:url" content="https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"><meta property="og:image" content="https://www.elonzh.com/logo.png"><meta property="article:published_time" content="2020-05-19T17:39:37+08:00"><meta property="article:modified_time" content="2020-05-19T17:39:37+08:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://www.elonzh.com/logo.png"><meta name=twitter:title content="gRPC 在 Kubernetes 中的负载均衡"><meta name=twitter:description content="背景 新公司服务在往 Kubernetes 上迁移，让我着手处理一个负载不均衡的问题，给到的描述是一个前台服务提供 API，后面挂两个 TensorFlow Model Server，其中后面的俩个"><meta name=application-name content="LoveIt"><meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=https://www.elonzh.com/favicon.ico><link rel=icon type=image/png sizes=32x32 href=https://www.elonzh.com/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=https://www.elonzh.com/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=https://www.elonzh.com/apple-touch-icon.png><link rel=mask-icon href=https://www.elonzh.com/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=https://www.elonzh.com/site.webmanifest><link rel=canonical href=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/><link rel=prev href=https://www.elonzh.com/%E8%B2%8D%E7%8C%AB%E6%8D%A2%E5%A4%AA%E5%AD%90%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0%E8%B0%9C%E6%A1%88/><link rel=next href=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/><link rel=stylesheet href=https://www.elonzh.com/lib/normalize/normalize.min.css><link rel=stylesheet href=https://www.elonzh.com/css/style.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/fontawesome-free/all.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"gRPC 在 Kubernetes 中的负载均衡","inLanguage":"zh-cn","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/www.elonzh.com\/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1\/"},"genre":"posts","keywords":"gRPC, Kubernetes","wordcount":2413,"url":"https:\/\/www.elonzh.com\/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1\/","datePublished":"2020-05-19T17:39:37+08:00","dateModified":"2020-05-19T17:39:37+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Elon Zhou"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':('auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark'))&&document.body.setAttribute('theme','dark');</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu><div class=menu-inner><a class=menu-item href=https://www.elonzh.com/>首页 </a><a class=menu-item href=https://www.elonzh.com/posts/>文章 </a><a class=menu-item href=https://www.elonzh.com/tags/>标签 </a><a class=menu-item href=https://www.elonzh.com/categories/>分类 </a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片 </a><a class=menu-item href=https://www.elonzh.com/about/>关于 </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop><input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin"></i></span></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin"></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>取消</a></div><a class=menu-item href=https://www.elonzh.com/>首页</a><a class=menu-item href=https://www.elonzh.com/posts/>文章</a><a class=menu-item href=https://www.elonzh.com/tags/>标签</a><a class=menu-item href=https://www.elonzh.com/categories/>分类</a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片</a><a class=menu-item href=https://www.elonzh.com/about/>关于</a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">gRPC 在 Kubernetes 中的负载均衡</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://www.elonzh.com/ title=Author rel=author class=author><i class="fas fa-user-circle fa-fw"></i>Elon Zhou</a></span>&nbsp;<span class=post-category>收录于 <a href=https://www.elonzh.com/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/><i class="far fa-folder fa-fw"></i>云原生</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2020-05-19>2020-05-19</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2413 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 5 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#背景>背景</a></li><li><a href=#验证假设>验证假设</a><ul><li><a href=#使用-1-个连接进行测试>使用 1 个连接进行测试</a></li><li><a href=#使用-3-个连接进行测试>使用 3 个连接进行测试</a></li></ul></li><li><a href=#解释>解释</a></li><li><a href=#解决方案>解决方案</a><ul><li><a href=#使用客户端负载均衡器>使用客户端负载均衡器</a></li><li><a href=#验证客户端负载均衡器方案>验证客户端负载均衡器方案</a></li><li><a href=#使用服务端负载均衡器>使用服务端负载均衡器</a></li></ul></li><li><a href=#关于-kube-proxy-负载均衡策略>关于 kube-proxy 负载均衡策略</a><ul><li><a href=#如何在已经启动的集群修改-kube-proxy-配置>如何在已经启动的集群修改 kube-proxy 配置</a></li></ul></li></ul></nav></div></div><div class=content id=content><h2 id=背景>背景</h2><p>新公司服务在往 Kubernetes 上迁移，让我着手处理一个负载不均衡的问题，给到的描述是一个前台服务提供 API，后面挂两个 TensorFlow Model Server，其中后面的俩个服务存在负载不均衡的问题。</p><p>考虑到内部服务是基于 kube-proxy 的 L4 负载均衡，TensorFlow Model Server 是基于 gRPC 的，而 gRPC 是基于 HTTP2 的，第一反应是由于 HTTP2 连接复用导致的负载不均衡问题<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>，这里记录下验证过程和提供一些解决思路。</p><h2 id=验证假设>验证假设</h2><p>这里部署了一个 grpcbin<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup> 服务用来测试 gRPC 服务的负载均衡：</p><figure><figcaption><span>ghz/grpcbin.yaml</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>v1<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>Service<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>grpcbin<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>clusterIP</span><span class=p>:</span><span class=w> </span>None<span class=w>
+</span><span class=w>  </span><span class=k>ports</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- <span class=k>port</span><span class=p>:</span><span class=w> </span><span class=m>9000</span><span class=w>
+</span><span class=w>      </span><span class=k>targetPort</span><span class=p>:</span><span class=w> </span><span class=m>9000</span><span class=w>
+</span><span class=w>  </span><span class=k>selector</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>app</span><span class=p>:</span><span class=w> </span>grpcbin<span class=w>
+</span><span class=w></span>---<span class=w>
+</span><span class=w></span><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>apps/v1<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>Deployment<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>grpcbin<span class=w>
+</span><span class=w>  </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>app</span><span class=p>:</span><span class=w> </span>grpcbin<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>replicas</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span><span class=w>  </span><span class=k>selector</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>matchLabels</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=k>app</span><span class=p>:</span><span class=w> </span>grpcbin<span class=w>
+</span><span class=w>  </span><span class=k>template</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span><span class=k>app</span><span class=p>:</span><span class=w> </span>grpcbin<span class=w>
+</span><span class=w>    </span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=k>dnsPolicy</span><span class=p>:</span><span class=w> </span>ClusterFirst<span class=w>
+</span><span class=w>      </span><span class=k>containers</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>name</span><span class=p>:</span><span class=w> </span>app<span class=w>
+</span><span class=w>          </span><span class=k>image</span><span class=p>:</span><span class=w> </span>moul/grpcbin<span class=w>
+</span><span class=w>          </span><span class=k>ports</span><span class=p>:</span><span class=w>
+</span><span class=w>            </span>- <span class=k>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>9000</span><span class=w>
+</span><span class=w>          </span><span class=k>resources</span><span class=p>:</span><span class=w>
+</span><span class=w>            </span><span class=k>requests</span><span class=p>:</span><span class=w>
+</span><span class=w>              </span><span class=k>memory</span><span class=p>:</span><span class=w> </span>50Mi<span class=w>
+</span><span class=w>              </span><span class=k>cpu</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;1&#34;</span><span class=w>
+</span><span class=w>            </span><span class=k>limits</span><span class=p>:</span><span class=w>
+</span><span class=w>              </span><span class=k>memory</span><span class=p>:</span><span class=w> </span>50Mi<span class=w>
+</span><span class=w>              </span><span class=k>cpu</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;1&#34;</span><span class=w>
+</span></code></pre></td></tr></table></div></div><p>其中 <code>resource</code> QoS class<sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup> 设置为 <code>Guaranteed</code>，
+确保 POD 资源是稳定的。</p><p>为了方便测试，这里使用 NodePort 类型的 Service 暴露出服务。不影响 kube-proxy 对服务的负载均衡。</p><p>测试客户端使用 ghz<sup id=fnref:4><a href=#fn:4 class=footnote-ref role=doc-noteref>4</a></sup>，一个用于 gRPC 压力测试的工具，配置如下：</p><figure><figcaption><span>ghz/Dockerfile</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=k>FROM</span><span class=s> ubuntu:bionic</span><span class=err>
+</span><span class=err></span><span class=k>WORKDIR</span><span class=s> /app</span><span class=err>
+</span><span class=err></span><span class=k>ADD</span> ghz-linux-x86_64.tar.gz .<span class=err>
+</span><span class=err></span><span class=k>COPY</span> grpcbin.proto .<span class=err>
+</span><span class=err></span><span class=k>RUN</span> chown -Rv root:root .<span class=err>
+</span><span class=err></span><span class=k>ENTRYPOINT</span> <span class=p>[</span> <span class=s2>&#34;./ghz&#34;</span> <span class=p>]</span><span class=err>
+</span></code></pre></td></tr></table></div></div><figure><figcaption><span>ghz/ghz.yaml</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>v1<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>ConfigMap<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>ghz-config<span class=w>
+</span><span class=w></span><span class=k>data</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>config.toml</span><span class=p>:</span><span class=w> </span>|<span class=sd>-
+</span><span class=sd>    host = &#34;grpcbin:9000&#34;</span><span class=w>
+</span><span class=w>
+</span><span class=w>    </span>proto<span class=w> </span>=<span class=w> </span><span class=s2>&#34;grpcbin.proto&#34;</span><span class=w>
+</span><span class=w>    </span>call<span class=w> </span>=<span class=w> </span><span class=s2>&#34;grpcbin.GRPCBin.DummyUnary&#34;</span><span class=w>
+</span><span class=w>
+</span><span class=w>    </span>insecure<span class=w> </span>=<span class=w> </span><span class=kc>true</span><span class=w>
+</span><span class=w>    </span><span class=c># Number of connections to use.</span><span class=w>
+</span><span class=w>    </span><span class=c># Concurrency is distributed evenly among all the connections.</span><span class=w>
+</span><span class=w>    </span><span class=c># Default is 1.</span><span class=w>
+</span><span class=w>    </span>connections<span class=w> </span>=<span class=w> </span><span class=m>1</span><span class=w>
+</span><span class=w>    </span><span class=c># Keepalive time duration. Only used if present and above 0.</span><span class=w>
+</span><span class=w>    </span>keepalive<span class=w> </span>=<span class=w> </span><span class=m>0</span><span class=w>
+</span><span class=w>    </span><span class=c># Duration of application to send requests.</span><span class=w>
+</span><span class=w>    </span><span class=c># When duration is reached, application stops and exits.</span><span class=w>
+</span><span class=w>    </span><span class=c># If duration is specified, n is ignored. Examples: -z 10s -z 3m.</span><span class=w>
+</span><span class=w>    </span>duration<span class=w> </span>=<span class=w> </span><span class=s2>&#34;3m&#34;</span><span class=w>
+</span><span class=w>    </span><span class=c># Number of requests to run. Default is 200.</span><span class=w>
+</span><span class=w>    </span>total<span class=w> </span>=<span class=w> </span><span class=m>1000000000</span><span class=w>
+</span><span class=w>    </span><span class=c># Number of requests to run concurrently.</span><span class=w>
+</span><span class=w>    </span><span class=c># Total number of requests cannot be smaller than the concurrency level.</span><span class=w>
+</span><span class=w>    </span><span class=c># Default is 50.</span><span class=w>
+</span><span class=w>    </span>concurrency<span class=w> </span>=<span class=w> </span><span class=m>200</span><span class=w>
+</span><span class=w>    </span><span class=c># Rate limit, in queries per second (QPS). Default is no rate limit.</span><span class=w>
+</span><span class=w>    </span>qps<span class=w> </span>=<span class=w> </span><span class=m>0</span><span class=w>
+</span><span class=w>
+</span><span class=w>    </span><span class=p>[</span>data<span class=p>]</span><span class=w>
+</span><span class=w>    </span>f_strings<span class=w> </span>=<span class=w> </span><span class=p>[</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=s2>&#34;1234567890&#34;</span><span class=w>
+</span><span class=w>      </span><span class=p>]</span><span class=w>
+</span><span class=w>
+</span><span class=w></span>---<span class=w>
+</span><span class=w></span><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>v1<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>Pod<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>ghz<span class=w>
+</span><span class=w>  </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>app</span><span class=p>:</span><span class=w> </span>ghz<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>volumes</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- <span class=k>name</span><span class=p>:</span><span class=w> </span>ghz-config<span class=w>
+</span><span class=w>      </span><span class=k>configMap</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span><span class=k>name</span><span class=p>:</span><span class=w> </span>ghz-config<span class=w>
+</span><span class=w>  </span><span class=k>containers</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- <span class=k>name</span><span class=p>:</span><span class=w> </span>app<span class=w>
+</span><span class=w>      </span><span class=k>image</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;test/ghz:latest&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>imagePullPolicy</span><span class=p>:</span><span class=w> </span>Always<span class=w>
+</span><span class=w>      </span><span class=k>args</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;--config&#34;</span><span class=p>,</span><span class=w> </span><span class=s2>&#34;/etc/ghz/config.toml&#34;</span><span class=p>,</span><span class=w> </span><span class=s2>&#34;--debug&#34;</span><span class=p>,</span><span class=w> </span><span class=s2>&#34;/var/lib/ghz.json&#34;</span><span class=p>]</span><span class=w>
+</span><span class=w>      </span><span class=k>volumeMounts</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>mountPath</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/etc/ghz&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>name</span><span class=p>:</span><span class=w> </span>ghz-config<span class=w>
+</span><span class=w>  </span><span class=k>restartPolicy</span><span class=p>:</span><span class=w> </span>Never<span class=w>
+</span></code></pre></td></tr></table></div></div><h3 id=使用-1-个连接进行测试>使用 1 个连接进行测试</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-text data-lang=text>➜ kubectl top pod
+NAME                       CPU(cores)   MEMORY(bytes)
+grpcbin-7556ccbccb-rp6m9   0m           6Mi
+grpcbin-7556ccbccb-v2pgq   861m         10Mi
+grpcbin-7556ccbccb-wdpbq   0m           6Mi
+</code></pre></td></tr></table></div></div><p>运行稳定后可以看到只有 <code>grpcbin-7556ccbccb-v2pgq</code> 这个 POD 有负载。</p><h3 id=使用-3-个连接进行测试>使用 3 个连接进行测试</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-text data-lang=text>➜ kubectl top pod
+NAME                       CPU(cores)   MEMORY(bytes)
+grpcbin-7556ccbccb-rp6m9   357m         9Mi
+grpcbin-7556ccbccb-v2pgq   518m         10Mi
+grpcbin-7556ccbccb-wdpbq   0m           6Mi
+</code></pre></td></tr></table></div></div><p>运行稳定后可以看到 <code>grpcbin-7556ccbccb-rp6m9</code>，<code>grpcbin-7556ccbccb-v2pgq</code> 这两个 POD 负载接近 1:2，即两者连接数分别为 1 和 2，这是因为集群 kube-proxy 使用的模式是 iptables，连接负载策略是随机的。</p><h2 id=解释>解释</h2><p>官方对 kube-proxy 的特点总结很清晰<sup id=fnref:5><a href=#fn:5 class=footnote-ref role=doc-noteref>5</a></sup>：</p><blockquote><p>The kube proxy:</p><ul><li>runs on each node # 运行在每个节点</li><li>proxies UDP, TCP and SCTP # 可以代理UDP、TCP、SCTP协议</li><li>does not understand HTTP # 但是不能识别HTTP协议</li><li>provides load balancing # 提供负载均衡</li><li>is just used to reach services # 只用于到达服务</li></ul></blockquote><p>也就是说：</p><ul><li>kube-proxy 是一个 L4 负载均衡器，只支持<strong>连接</strong>级别负载均衡；</li><li>gRPC 传输协议基于 HTTP2，使用了连接复用特性，客户端一般只会持有一个连接；</li><li>因此当连接建立后，后续的请求只会发送到该连接对应的节点。</li></ul><h2 id=解决方案>解决方案</h2><h3 id=使用客户端负载均衡器>使用客户端负载均衡器</h3><ol><li>使用 Headless Service<sup id=fnref:6><a href=#fn:6 class=footnote-ref role=doc-noteref>6</a></sup>，通过 DNS 直接返回一组 POD 地址；</li><li>gRPC 的客户端代码使用提供的负载均衡功能<sup id=fnref:7><a href=#fn:7 class=footnote-ref role=doc-noteref>7</a></sup>，同时使用 DNS Resolver <sup id=fnref:8><a href=#fn:8 class=footnote-ref role=doc-noteref>8</a></sup>实现客户端负载均衡器。</li></ol><p>这种方案能够在不改变集群网络架构的情况下支持 gRPC 的负载均衡，但是还是有一些缺陷：</p><ol><li>使用 Headless Service 和 DNS Resolver 会增大　CoreDNS 的压力；</li><li>DNS Resolver 会有缓存，对服务的节点变化不够迅速；</li><li>方案有侵入性且适用性差。</li></ol><h3 id=验证客户端负载均衡器方案>验证客户端负载均衡器方案</h3><p>服务端测试代码及部署配置：</p><figure><figcaption><span>load_balancing/server/main.go</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-go data-lang=go><span class=kn>package</span> <span class=nx>main</span>
+
+<span class=kn>import</span> <span class=p>(</span>
+	<span class=s>&#34;context&#34;</span>
+	<span class=s>&#34;fmt&#34;</span>
+	<span class=s>&#34;log&#34;</span>
+	<span class=s>&#34;net&#34;</span>
+	<span class=s>&#34;os&#34;</span>
+
+	<span class=s>&#34;google.golang.org/grpc&#34;</span>
+	<span class=nx>pb</span> <span class=s>&#34;google.golang.org/grpc/examples/features/proto/echo&#34;</span>
+<span class=p>)</span>
+
+<span class=kd>type</span> <span class=nx>echoServer</span> <span class=kd>struct</span> <span class=p>{</span>
+	<span class=nx>pb</span><span class=p>.</span><span class=nx>UnimplementedEchoServer</span>
+	<span class=nx>hostname</span> <span class=kt>string</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>echoServer</span><span class=p>)</span> <span class=nf>UnaryEcho</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>req</span> <span class=o>*</span><span class=nx>pb</span><span class=p>.</span><span class=nx>EchoRequest</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>pb</span><span class=p>.</span><span class=nx>EchoResponse</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+	<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;received request:&#34;</span><span class=p>,</span> <span class=nx>req</span><span class=p>.</span><span class=nx>Message</span><span class=p>)</span>
+	<span class=k>return</span> <span class=o>&amp;</span><span class=nx>pb</span><span class=p>.</span><span class=nx>EchoResponse</span><span class=p>{</span><span class=nx>Message</span><span class=p>:</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;(from %s): reply %s &#34;</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>hostname</span><span class=p>,</span> <span class=nx>req</span><span class=p>.</span><span class=nx>Message</span><span class=p>)},</span> <span class=kc>nil</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+	<span class=nx>hostname</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>os</span><span class=p>.</span><span class=nf>Hostname</span><span class=p>()</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=nx>log</span><span class=p>.</span><span class=nf>Fatalf</span><span class=p>(</span><span class=s>&#34;failed to get hostname: %v&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+	<span class=p>}</span>
+
+	<span class=nx>addr</span> <span class=o>:=</span> <span class=s>&#34;:9000&#34;</span>
+	<span class=nx>lis</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>net</span><span class=p>.</span><span class=nf>Listen</span><span class=p>(</span><span class=s>&#34;tcp&#34;</span><span class=p>,</span> <span class=nx>addr</span><span class=p>)</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=nx>log</span><span class=p>.</span><span class=nf>Fatalf</span><span class=p>(</span><span class=s>&#34;failed to listen: %v&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+	<span class=p>}</span>
+
+	<span class=nx>s</span> <span class=o>:=</span> <span class=nx>grpc</span><span class=p>.</span><span class=nf>NewServer</span><span class=p>()</span>
+	<span class=nx>pb</span><span class=p>.</span><span class=nf>RegisterEchoServer</span><span class=p>(</span><span class=nx>s</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>echoServer</span><span class=p>{</span><span class=nx>hostname</span><span class=p>:</span> <span class=nx>hostname</span><span class=p>})</span>
+	<span class=nx>log</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;serving on %s\n&#34;</span><span class=p>,</span> <span class=nx>addr</span><span class=p>)</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>s</span><span class=p>.</span><span class=nf>Serve</span><span class=p>(</span><span class=nx>lis</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=nx>log</span><span class=p>.</span><span class=nf>Fatalf</span><span class=p>(</span><span class=s>&#34;failed to serve: %v&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+	<span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><figure><figcaption><span>load_balancing/server/deploy.yaml</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>v1<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>Service<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>echo-server<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>clusterIP</span><span class=p>:</span><span class=w> </span>None<span class=w> </span><span class=c># 使用 Headless Service</span><span class=w>
+</span><span class=w>  </span><span class=k>ports</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- <span class=k>port</span><span class=p>:</span><span class=w> </span><span class=m>9000</span><span class=w>
+</span><span class=w>      </span><span class=k>targetPort</span><span class=p>:</span><span class=w> </span><span class=m>9000</span><span class=w>
+</span><span class=w>  </span><span class=k>selector</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>app</span><span class=p>:</span><span class=w> </span>echo-server<span class=w>
+</span><span class=w></span>---<span class=w>
+</span><span class=w></span><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>apps/v1<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>Deployment<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>echo-server<span class=w>
+</span><span class=w>  </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>app</span><span class=p>:</span><span class=w> </span>echo-server<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>replicas</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span><span class=w>  </span><span class=k>selector</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>matchLabels</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=k>app</span><span class=p>:</span><span class=w> </span>echo-server<span class=w>
+</span><span class=w>  </span><span class=k>template</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span><span class=k>app</span><span class=p>:</span><span class=w> </span>echo-server<span class=w>
+</span><span class=w>    </span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=k>dnsPolicy</span><span class=p>:</span><span class=w> </span>ClusterFirst<span class=w>
+</span><span class=w>      </span><span class=k>containers</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>name</span><span class=p>:</span><span class=w> </span>app<span class=w>
+</span><span class=w>          </span><span class=k>image</span><span class=p>:</span><span class=w> </span>test/load_balancing_test<span class=p>:</span>latest<span class=w>
+</span><span class=w>          </span><span class=k>ports</span><span class=p>:</span><span class=w>
+</span><span class=w>            </span>- <span class=k>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>9000</span><span class=w>
+</span><span class=w>          </span><span class=k>command</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;./echo_server&#34;</span><span class=p>]</span><span class=w>
+</span></code></pre></td></tr></table></div></div><p>客户端测试代码及部署配置：</p><figure><figcaption><span>load_balancing/client/main.go</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-go data-lang=go><span class=kn>package</span> <span class=nx>main</span>
+
+<span class=kn>import</span> <span class=p>(</span>
+	<span class=s>&#34;context&#34;</span>
+	<span class=s>&#34;fmt&#34;</span>
+	<span class=s>&#34;log&#34;</span>
+	<span class=s>&#34;os&#34;</span>
+	<span class=s>&#34;time&#34;</span>
+
+	<span class=s>&#34;google.golang.org/grpc&#34;</span>
+	<span class=s>&#34;google.golang.org/grpc/balancer/roundrobin&#34;</span>
+	<span class=nx>ecpb</span> <span class=s>&#34;google.golang.org/grpc/examples/features/proto/echo&#34;</span>
+<span class=p>)</span>
+
+<span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+	<span class=nx>target</span> <span class=o>:=</span> <span class=nx>os</span><span class=p>.</span><span class=nf>Getenv</span><span class=p>(</span><span class=s>&#34;ECHO_SERVER&#34;</span><span class=p>)</span>
+	<span class=k>if</span> <span class=nx>target</span> <span class=o>==</span> <span class=s>&#34;&#34;</span>
+		<span class=c1>// 使用 dns 解析器
+</span><span class=c1></span>		<span class=nx>target</span> <span class=p>=</span> <span class=s>&#34;dns:///echo-server:9000&#34;</span>
+	<span class=p>}</span>
+	<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;target:&#34;</span><span class=p>,</span> <span class=nx>target</span><span class=p>)</span>
+
+	<span class=c1>// 建立连接
+</span><span class=c1></span>	<span class=nx>ctx</span><span class=p>,</span> <span class=nx>_</span> <span class=o>:=</span> <span class=nx>context</span><span class=p>.</span><span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nf>Background</span><span class=p>(),</span> <span class=mi>3</span><span class=o>*</span><span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>)</span>
+	<span class=nx>conn</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>grpc</span><span class=p>.</span><span class=nf>DialContext</span><span class=p>(</span>
+		<span class=nx>ctx</span><span class=p>,</span>
+		<span class=nx>target</span><span class=p>,</span>
+		<span class=nx>grpc</span><span class=p>.</span><span class=nf>WithBlock</span><span class=p>(),</span>
+		<span class=nx>grpc</span><span class=p>.</span><span class=nf>WithInsecure</span><span class=p>(),</span>
+		<span class=c1>// 负载均衡策略
+</span><span class=c1></span>		<span class=nx>grpc</span><span class=p>.</span><span class=nf>WithBalancerName</span><span class=p>(</span><span class=nx>roundrobin</span><span class=p>.</span><span class=nx>Name</span><span class=p>),</span>
+	<span class=p>)</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=nx>log</span><span class=p>.</span><span class=nf>Fatalf</span><span class=p>(</span><span class=s>&#34;did not connect: %v&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+	<span class=p>}</span>
+
+	<span class=nx>client</span> <span class=o>:=</span> <span class=nx>ecpb</span><span class=p>.</span><span class=nf>NewEchoClient</span><span class=p>(</span><span class=nx>conn</span><span class=p>)</span>
+	<span class=c1>// 1 秒请求一次
+</span><span class=c1></span>	<span class=nx>messageID</span> <span class=o>:=</span> <span class=mi>0</span>
+	<span class=k>for</span> <span class=k>range</span> <span class=nx>time</span><span class=p>.</span><span class=nf>Tick</span><span class=p>(</span><span class=mi>1</span><span class=o>*</span><span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>){</span>
+		<span class=nx>messageID</span><span class=o>++</span>
+		<span class=nx>ctx</span><span class=p>,</span> <span class=nx>_</span> <span class=o>:=</span> <span class=nx>context</span><span class=p>.</span><span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nf>Background</span><span class=p>(),</span> <span class=mi>3</span><span class=o>*</span><span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>)</span>
+		<span class=nx>response</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>client</span><span class=p>.</span><span class=nf>UnaryEcho</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>ecpb</span><span class=p>.</span><span class=nx>EchoRequest</span><span class=p>{</span><span class=nx>Message</span><span class=p>:</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;message %d&#34;</span><span class=p>,</span> <span class=nx>messageID</span><span class=p>)})</span>
+		<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+			<span class=nx>log</span><span class=p>.</span><span class=nf>Fatalf</span><span class=p>(</span><span class=s>&#34;could not send request: %v&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+		<span class=p>}</span>
+		<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>response</span><span class=p>.</span><span class=nx>Message</span><span class=p>)</span>
+	<span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><figure><figcaption><span>load_balancing/client/deploy.yaml</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml>---<span class=w>
+</span><span class=w></span><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>apps/v1<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>Deployment<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>load-balancing-client<span class=w>
+</span><span class=w>  </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>app</span><span class=p>:</span><span class=w> </span>load-balancing-client<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>replicas</span><span class=p>:</span><span class=w> </span><span class=m>1</span><span class=w>
+</span><span class=w>  </span><span class=k>selector</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>matchLabels</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=k>app</span><span class=p>:</span><span class=w> </span>load-balancing-client<span class=w>
+</span><span class=w>  </span><span class=k>template</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span><span class=k>app</span><span class=p>:</span><span class=w> </span>load-balancing-client<span class=w>
+</span><span class=w>    </span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=k>dnsPolicy</span><span class=p>:</span><span class=w> </span>ClusterFirst<span class=w>
+</span><span class=w>      </span><span class=k>containers</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>name</span><span class=p>:</span><span class=w> </span>app<span class=w>
+</span><span class=w>          </span><span class=k>image</span><span class=p>:</span><span class=w> </span>test/load_balancing_test<span class=p>:</span>latest<span class=w>
+</span><span class=w>          </span><span class=k>command</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;./load_balancing_client&#34;</span><span class=p>]</span><span class=w>
+</span></code></pre></td></tr></table></div></div><p>客户端测试代码使用 DNS 解析服务器地址，并使用 <code>roundrobin</code> 负载均衡策略。</p><p>我们首先测试的是设置 <code>clusterIP: None</code> 的情况（即使用 Headless Service），可以看到客户端输出的日志是符合预期的，请求会轮询服务器连接：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-text data-lang=text>2020/05/25 07:12:45 target: dns:///echo-server:9000
+2020/05/25 07:12:46 (from echo-server-866cff6884-66kj8): reply message 1
+2020/05/25 07:12:47 (from echo-server-866cff6884-967bx): reply message 2
+2020/05/25 07:12:48 (from echo-server-866cff6884-xsds5): reply message 3
+2020/05/25 07:12:49 (from echo-server-866cff6884-66kj8): reply message 4
+2020/05/25 07:12:50 (from echo-server-866cff6884-967bx): reply message 5
+2020/05/25 07:12:51 (from echo-server-866cff6884-xsds5): reply message 6
+</code></pre></td></tr></table></div></div><p>当取消设置 <code>clusterIP: None</code> 后再重新部署客户端，此时客户端只能利用到一个服务器连接，</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-text data-lang=text>2020/05/25 07:14:02 target: dns:///echo-server:9000
+2020/05/25 07:14:03 (from echo-server-6dcb87cb69-ws2gf): reply message 1
+2020/05/25 07:14:04 (from echo-server-6dcb87cb69-ws2gf): reply message 2
+2020/05/25 07:14:05 (from echo-server-6dcb87cb69-ws2gf): reply message 3
+2020/05/25 07:14:06 (from echo-server-6dcb87cb69-ws2gf): reply message 4
+2020/05/25 07:14:07 (from echo-server-6dcb87cb69-ws2gf): reply message 5
+2020/05/25 07:14:08 (from echo-server-6dcb87cb69-ws2gf): reply message 6
+</code></pre></td></tr></table></div></div><p>也就是说 gRPC 客户端基于 DNS 解析的负载均衡是需要配合 Headless Service 来使用的。</p><p>当然 gRPC 框架自带了其他解析器和负载均衡策略的，这里只是选择了最常见的场景，更复杂的常见是可以通过自定义解析器和负载均衡策略来实现。</p><p>另外像 Dubbo 之类的 RPC 框架也是支持配置客户端负载均衡策略的。<sup id=fnref:9><a href=#fn:9 class=footnote-ref role=doc-noteref>9</a></sup></p><h3 id=使用服务端负载均衡器>使用服务端负载均衡器</h3><p>使用 L7 负载均衡器，例如 Linkerd, Envoy。如果条件允许的话，可以使用 istio 之类的服务网格产品。</p><h2 id=关于-kube-proxy-负载均衡策略>关于 kube-proxy 负载均衡策略</h2><p>kube-proxy 支持三种模式<sup id=fnref:10><a href=#fn:10 class=footnote-ref role=doc-noteref>10</a></sup>：</p><ul><li>usersapce: 用户空间内的负载均衡，负载均衡支持轮询策略，性能一般；</li></ul><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-05-26-09-53-36.png data-srcset="https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-53-36.png, img/2020-05-26-09-53-36.png 1.5x, https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-53-36.png 2x" data-sizes=auto alt=/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-53-36.png title=/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-53-36.png></p><ul><li>iptables: 完全使用 iptables 实现相关功能，只支持随机负载均衡，性能较好；</li></ul><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-05-26-09-53-51.png data-srcset="https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-53-51.png, img/2020-05-26-09-53-51.png 1.5x, https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-53-51.png 2x" data-sizes=auto alt=/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-53-51.png title=/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-53-51.png></p><ul><li>ipvs: 基于 ipvs 做负载均衡，使用 iptables 实现 Cluster IP，包过滤，SNAT 或 masquerade<sup id=fnref:11><a href=#fn:11 class=footnote-ref role=doc-noteref>11</a></sup>，性能最好，支持较多负载均衡策略，默认是轮询，可通过 <code>--ipvs-scheduler</code> 参数配置。</li></ul><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-05-26-09-54-05.png data-srcset="https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-54-05.png, img/2020-05-26-09-54-05.png 1.5x, https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-54-05.png 2x" data-sizes=auto alt=/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-54-05.png title=/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/img/2020-05-26-09-54-05.png></p><p>关于是否有必要选择从 iptables 切换到 ipvs 模式，可以参考这两篇文章：</p><ul><li><a href=https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/ target=_blank rel="noopener noreffer">Comparing kube-proxy modes: iptables or IPVS?</a></li><li><a href=https://yuerblog.cc/2020/03/06/%E8%AF%9D%E8%AF%B4kubernetes%E7%BD%91%E7%BB%9C%E7%96%91%E9%9A%BE%E6%9D%82%E7%97%87/ target=_blank rel="noopener noreffer">话说kubernetes网络疑难杂症</a></li></ul><p>基本结论是：</p><ul><li>集群服务超过 1000 个时，使用 ipvs 能获得较明显的性能提升，具体数值取决于集群实际情况，但如果主要使用长连接的服务，使用 ipvs 的效果提升是有限的。</li><li>ipvs 模式下线规则时候的一个 bug，会导致新连接发送到已经下线的POD内，如果无法接受就需要等官方修复。</li></ul><h3 id=如何在已经启动的集群修改-kube-proxy-配置>如何在已经启动的集群修改 kube-proxy 配置</h3><p>当然如果确定要将已上线的集群的 kube-proxy 模式设置为 ipvs 的话，这里也提供一些指引。</p><p>使用 kubeadm 安装：</p><ul><li><a href=https://kubernetes.io/zh/docs/tasks/administer-cluster/cluster-management/#%E7%BB%B4%E6%8A%A4%E8%8A%82%E7%82%B9 target=_blank rel="noopener noreffer">集群管理 - 维护节点</a></li><li><a href=https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-upgrade/ target=_blank rel="noopener noreffer">kubeadm upgrade</a></li></ul><p>使用 Rancher 安装：</p><p><a href=https://rancher2.docs.rancher.cn/docs/cluster-admin/editing-clusters/_index target=_blank rel="noopener noreffer">Rancher 2.x - 设置集群</a></p><p>使用 RKE 安装：</p><p><a href=https://rancher.com/docs/rke/latest/en/upgrades/how-upgrades-work/ target=_blank rel="noopener noreffer">RKE - How Upgrades Work</a></p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p><a href=https://kubernetes.io/blog/2018/11/07/grpc-load-balancing-on-kubernetes-without-tears/ target=_blank rel="noopener noreffer">gRPC Load Balancing on Kubernetes without Tears</a> <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p><a href=https://github.com/moul/grpcbin target=_blank rel="noopener noreffer">grpcbin</a> <a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3 role=doc-endnote><p><a href=https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#qos-classes target=_blank rel="noopener noreffer">QoS class</a> <a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:4 role=doc-endnote><p><a href=https://ghz.sh/docs/intro target=_blank rel="noopener noreffer">ghz</a> <a href=#fnref:4 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:5 role=doc-endnote><p><a href=https://kubernetes.io/docs/concepts/cluster-administration/proxies/ target=_blank rel="noopener noreffer">Proxies in Kubernetes</a> <a href=#fnref:5 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:6 role=doc-endnote><p><a href=https://kubernetes.io/docs/concepts/services-networking/service/#headless-services target=_blank rel="noopener noreffer">Headless Service</a> <a href=#fnref:6 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:7 role=doc-endnote><p><a href=https://github.com/grpc/grpc/blob/master/doc/load-balancing.md target=_blank rel="noopener noreffer">Load Balancing in gRPC</a>，<a href="https://pkg.go.dev/google.golang.org/grpc/balancer?tab=doc" target=_blank rel="noopener noreffer">google.golang.org/grpc/balancer</a> <a href=#fnref:7 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:8 role=doc-endnote><p><a href=https://github.com/grpc/grpc/blob/master/doc/naming.md target=_blank rel="noopener noreffer">gRPC Name Resolution</a> <a href=#fnref:8 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:9 role=doc-endnote><p><a href=http://dubbo.apache.org/zh-cn/blog/dubbo-loadbalance.html target=_blank rel="noopener noreffer">Dubbo的负载均衡</a> <a href=#fnref:9 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:10 role=doc-endnote><p><a href=https://kubernetes.io/zh/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies target=_blank rel="noopener noreffer">VIP 和 Service 代理</a> <a href=#fnref:10 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:11 role=doc-endnote><p><a href=https://github.com/kubernetes/kubernetes/blob/master/pkg/proxy/ipvs/README.md#when-ipvs-falls-back-to-iptables target=_blank rel="noopener noreffer">When IPVS falls back to IPTABLES</a> <a href=#fnref:11 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2020-05-19</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/ data-title="gRPC 在 Kubernetes 中的负载均衡" data-hashtags=gRPC,Kubernetes><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/ data-hashtag=gRPC><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/ data-title="gRPC 在 Kubernetes 中的负载均衡" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/ data-title="gRPC 在 Kubernetes 中的负载均衡"><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/ data-title="gRPC 在 Kubernetes 中的负载均衡"><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/ data-title="gRPC 在 Kubernetes 中的负载均衡" data-description><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/ data-title="gRPC 在 Kubernetes 中的负载均衡" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/ data-title="gRPC 在 Kubernetes 中的负载均衡"><i class="fab fa-evernote fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=https://www.elonzh.com/tags/grpc/>gRPC</a>,&nbsp;<a href=https://www.elonzh.com/tags/kubernetes/>Kubernetes</a></section><section><span><a href=javascript:void(0); onclick=window.history.back();>返回</a></span>&nbsp;|&nbsp;<span><a href=https://www.elonzh.com/>主页</a></span></section></div><div class=post-nav><a href=https://www.elonzh.com/%E8%B2%8D%E7%8C%AB%E6%8D%A2%E5%A4%AA%E5%AD%90%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0%E8%B0%9C%E6%A1%88/ class=prev rel=prev title=貍猫换太子？程序启动参数谜案><i class="fas fa-angle-left fa-fw"></i>貍猫换太子？程序启动参数谜案</a>
+<a href=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ class=next rel=next title="Rancher 流水线随机失败问题">Rancher 流水线随机失败问题<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=disqus_thread class=comment></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://disqus.com/?ref_noscript>Disqus</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.68.3">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i>LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2019 - 2020</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://www.elonzh.com/ target=_blank>Elon Zhou</a></span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i></a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><link rel=stylesheet href=https://www.elonzh.com/lib/katex/katex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/katex/copy-tex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=https://elonzh.disqus.com/embed.js defer></script><script type=text/javascript src=https://www.elonzh.com/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/sharer/sharer.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/katex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/auto-render.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/copy-tex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/mhchem.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":30},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","lunrIndexURL":"/index.json","lunrLanguageCode":"zh","lunrSegmentitURL":"/lib/lunr/lunr.segmentit.js","maxResultLength":10,"noResultsFound":"没有找到结果","snippetLength":50,"type":"lunr"}};</script><script type=text/javascript src=https://www.elonzh.com/js/theme.min.js></script></body></html>

@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ghz-config
+data:
+  config.toml: |-
+    host = "grpcbin:9000"
+
+    proto = "grpcbin.proto"
+    call = "grpcbin.GRPCBin.DummyUnary"
+
+    insecure = true
+    # Number of connections to use.
+    # Concurrency is distributed evenly among all the connections.
+    # Default is 1.
+    connections = 1
+    # Keepalive time duration. Only used if present and above 0.
+    keepalive = 0
+    # Duration of application to send requests.
+    # When duration is reached, application stops and exits.
+    # If duration is specified, n is ignored. Examples: -z 10s -z 3m.
+    duration = "3m"
+    # Number of requests to run. Default is 200.
+    total = 1000000000
+    # Number of requests to run concurrently.
+    # Total number of requests cannot be smaller than the concurrency level.
+    # Default is 50.
+    concurrency = 200
+    # Rate limit, in queries per second (QPS). Default is no rate limit.
+    qps = 0
+
+    [data]
+    f_strings = [
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890",
+        "1234567890"
+      ]
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ghz
+  labels:
+    app: ghz
+spec:
+  volumes:
+    - name: ghz-config
+      configMap:
+        name: ghz-config
+  containers:
+    - name: app
+      image: "test/ghz:latest"
+      imagePullPolicy: Always
+      args: ["--config", "/etc/ghz/config.toml", "--debug", "/var/lib/ghz.json"]
+      volumeMounts:
+        - mountPath: "/etc/ghz"
+          name: ghz-config
+  restartPolicy: Never

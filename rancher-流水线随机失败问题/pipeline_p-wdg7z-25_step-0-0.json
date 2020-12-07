@@ -1,0 +1,39 @@
+{
+    "_links": {
+        "self": {
+            "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/16/wfapi/describe"
+        }
+    },
+    "id": "16",
+    "name": "step-0-0",
+    "execNode": "",
+    "status": "SUCCESS",
+    "startTimeMillis": 1590994223290,
+    "durationMillis": 9534,
+    "pauseDurationMillis": 0,
+    "stageFlowNodes": [
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/19/wfapi/describe"
+                },
+                "log": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/19/wfapi/log"
+                },
+                "console": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/19/log"
+                }
+            },
+            "id": "19",
+            "name": "Check out from version control",
+            "execNode": "",
+            "status": "SUCCESS",
+            "startTimeMillis": 1590994223644,
+            "durationMillis": 5568,
+            "pauseDurationMillis": 0,
+            "parentNodes": [
+                "18"
+            ]
+        }
+    ]
+}

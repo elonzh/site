@@ -1,0 +1,372 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>计算机网络信道的数字编码 - Life Log</title><meta name=Description content="这是我的全新 Hugo 网站"><meta property="og:title" content="计算机网络信道的数字编码"><meta property="og:description" content="背景 数字编码指的是把数字形式的数据以数字信号方式在信道上传输的技术。最简单的想法就是使用非归零编码（NRZ， 正电压为 1， 负电压为 0），但是由"><meta property="og:type" content="article"><meta property="og:url" content="https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/"><meta property="og:image" content="https://www.elonzh.com/logo.png"><meta property="article:published_time" content="2015-10-18T00:00:00+00:00"><meta property="article:modified_time" content="2015-10-18T00:00:00+00:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://www.elonzh.com/logo.png"><meta name=twitter:title content="计算机网络信道的数字编码"><meta name=twitter:description content="背景 数字编码指的是把数字形式的数据以数字信号方式在信道上传输的技术。最简单的想法就是使用非归零编码（NRZ， 正电压为 1， 负电压为 0），但是由"><meta name=application-name content="LoveIt"><meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=https://www.elonzh.com/favicon.ico><link rel=icon type=image/png sizes=32x32 href=https://www.elonzh.com/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=https://www.elonzh.com/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=https://www.elonzh.com/apple-touch-icon.png><link rel=mask-icon href=https://www.elonzh.com/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=https://www.elonzh.com/site.webmanifest><link rel=canonical href=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/><link rel=next href=https://www.elonzh.com/linux-%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%E7%B3%BB%E7%BB%9F%E6%8E%A2%E7%A9%B6/><link rel=stylesheet href=https://www.elonzh.com/lib/normalize/normalize.min.css><link rel=stylesheet href=https://www.elonzh.com/css/style.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/fontawesome-free/all.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"计算机网络信道的数字编码","inLanguage":"zh-cn","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/www.elonzh.com\/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81\/"},"genre":"posts","keywords":"计算机网络","wordcount":2075,"url":"https:\/\/www.elonzh.com\/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81\/","datePublished":"2015-10-18T00:00:00+00:00","dateModified":"2015-10-18T00:00:00+00:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Elon Zhou"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':('auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark'))&&document.body.setAttribute('theme','dark');</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu><div class=menu-inner><a class=menu-item href=https://www.elonzh.com/>首页 </a><a class=menu-item href=https://www.elonzh.com/posts/>文章 </a><a class=menu-item href=https://www.elonzh.com/tags/>标签 </a><a class=menu-item href=https://www.elonzh.com/categories/>分类 </a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片 </a><a class=menu-item href=https://www.elonzh.com/about/>关于 </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop><input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin"></i></span></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin"></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>取消</a></div><a class=menu-item href=https://www.elonzh.com/>首页</a><a class=menu-item href=https://www.elonzh.com/posts/>文章</a><a class=menu-item href=https://www.elonzh.com/tags/>标签</a><a class=menu-item href=https://www.elonzh.com/categories/>分类</a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片</a><a class=menu-item href=https://www.elonzh.com/about/>关于</a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">计算机网络信道的数字编码</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://www.elonzh.com/ title=Author rel=author class=author><i class="fas fa-user-circle fa-fw"></i>Elon Zhou</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2015-10-18>2015-10-18</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2075 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 5 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#背景>背景</a></li><li><a href=#各个编码的特征>各个编码的特征</a></li><li><a href=#编码规则>编码规则</a></li></ul></nav></div></div><div class=content id=content><h2 id=背景>背景</h2><p>数字编码指的是把数字形式的数据以数字信号方式在信道上传输的技术。最简单的想法就是使用非归零编码（NRZ， 正电压为 1， 负电压为 0），但是由于在数据通信中发送方和接收方的时钟无法精确同步，<strong>时钟漂移</strong> 问题会使数据传送发生错误。</p><p>另外，接受方通过将当前接收到的信号与之前接收的信号的平均值进行比较判断接收的比特是 0 还是 1，但是传输的比特为连续的 1 或 0 时就会改变这个平均这，产生 <strong>基线漂移</strong>。</p><p>为了解决这些问题，一系列编码方式开始产生，包括 <strong>非归零反转</strong> 编码，<strong>曼彻斯特</strong> 编码 <strong>差分曼彻斯特</strong> 编码等等，同时为了提升传输效率又产生了 <strong>4B/5B</strong> 编码和 <strong>MLT-3</strong> 编码。</p><h2 id=各个编码的特征>各个编码的特征</h2><ol><li>非归零编码<ul><li>特征： 高 1 低 0</li><li>优点： 简单</li><li>缺点： 抗干扰能力极差，实际不使用这种编码</li></ul></li><li>非归零反转编码<ul><li>特征： 差分编码，1 跳 0 不跳</li><li>优点： 抗干扰能力更强</li><li>缺点： 编解码更复杂，对连续为 0 的情况无能为力</li></ul></li><li>曼彻斯特编码<ul><li>特征： 自同步，每个比特跳变一次且 1，0 对应的跳变是不变的</li><li>优点： 能够保持通信同步</li><li>缺点： 编码效率低，只有 50%</li></ul></li><li>差分曼彻斯特编码<ul><li>特征： 差分编码，比特开始时，有跳为 0，无跳为 1</li><li>优点： 能够保持通信同步</li><li>缺点： 编码效率低，只有 50%</li></ul></li><li>4B/5B 编码<ul><li>特征： 将数据以 4 比特为一组进行分割并映射为 5 比特码组</li><li>优点： 保持通信同步的同时将效率提高到 80%</li><li>缺点： 直接用在 100Mbps 的双绞线可能会因带宽不够出现问题</li></ul></li><li>MLT-3 编码<ul><li>特征：差分编码，0 不跳 1 跳反</li><li>优点：4 比特对应一个信号模式（-V，0，+V，0）</li><li>缺点：最坏情况下，信号波特率为数据速率的 1/4</li></ul></li></ol><h2 id=编码规则>编码规则</h2><p>编码规则我使用了 Python 进行实现，为了使规则简单易懂，没有对函数进一步抽象，同时进行了注释有助于理解。</p><p>另外 <strong>4B/5B</strong> 编码为简单的映射编码，十分简单，编写冗长的映射表没有意义，故不作实现。</p><p>以下为实现代码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span><span class=lnt>174
+</span><span class=lnt>175
+</span><span class=lnt>176
+</span><span class=lnt>177
+</span><span class=lnt>178
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=n>HIGH_LEVEL_SIGNAL</span> <span class=o>=</span> <span class=mi>1</span>
+<span class=n>LOW_LEVEL_SIGNAL</span> <span class=o>=</span> <span class=mi>0</span>
+<span class=n>NEGATIVE_HIGH_LEVEL_SIGNAL</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1</span>
+
+
+<span class=k>def</span> <span class=nf>nrz</span><span class=p>(</span><span class=n>signal</span><span class=p>):</span>
+    <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>    非归零编码
+</span><span class=s2>    &#34;&#34;&#34;</span>
+    <span class=k>return</span> <span class=n>signal</span>
+
+
+<span class=k>def</span> <span class=nf>nrzi</span><span class=p>(</span><span class=n>signal</span><span class=p>):</span>
+    <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>    非归零反转编码, 1 跳变, 0 不跳变.
+</span><span class=s2>    &#34;&#34;&#34;</span>
+    <span class=n>prev</span> <span class=o>=</span> <span class=n>LOW_LEVEL_SIGNAL</span>
+    <span class=n>result</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=k>for</span> <span class=n>v</span> <span class=ow>in</span> <span class=n>signal</span><span class=p>:</span>
+        <span class=k>if</span> <span class=n>v</span> <span class=o>==</span> <span class=n>HIGH_LEVEL_SIGNAL</span><span class=p>:</span>
+            <span class=k>if</span> <span class=n>prev</span> <span class=o>==</span> <span class=n>HIGH_LEVEL_SIGNAL</span><span class=p>:</span>
+                <span class=n>v</span> <span class=o>=</span> <span class=n>LOW_LEVEL_SIGNAL</span>
+            <span class=k>elif</span> <span class=n>prev</span> <span class=o>==</span> <span class=n>LOW_LEVEL_SIGNAL</span><span class=p>:</span>
+                <span class=n>v</span> <span class=o>=</span> <span class=n>HIGH_LEVEL_SIGNAL</span>
+        <span class=k>elif</span> <span class=n>v</span> <span class=o>==</span> <span class=n>LOW_LEVEL_SIGNAL</span><span class=p>:</span>
+            <span class=n>v</span> <span class=o>=</span> <span class=n>prev</span>
+        <span class=n>result</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>v</span><span class=p>)</span>
+        <span class=n>prev</span> <span class=o>=</span> <span class=n>v</span>
+    <span class=k>return</span> <span class=n>result</span>
+
+
+<span class=k>def</span> <span class=nf>pe</span><span class=p>(</span><span class=n>signal</span><span class=p>):</span>
+    <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>    曼彻斯特编码(Manchester Encoding), 也叫做相位编码(Phase Encode,简写PE)
+</span><span class=s2>    关于中间电平跳变观点有歧义:
+</span><span class=s2>        第一种
+</span><span class=s2>            G. E. Thomas, Andrew S. Tanenbaum1949年提出的, 它规定0是由低-高的电平跳变表示, 1是高-低的电平跳变.
+</span><span class=s2>        第二种
+</span><span class=s2>            IEEE 802.4(令牌总线)和低速版的IEEE 802.3(以太网)中规定, 按照这样的说法, 低-高电平跳变表示1, 高-低的电平跳变表示0.
+</span><span class=s2>    由于有以上两种不同的表示方法, 所以有些地方会出现歧异. 当然, 这可以在差分曼彻斯特编码(Differential Manchester encoding)方式中克服.
+</span><span class=s2>
+</span><span class=s2>    样例程序使用第一种观点.
+</span><span class=s2>    &#34;&#34;&#34;</span>
+    <span class=n>result</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=k>for</span> <span class=n>v</span> <span class=ow>in</span> <span class=n>signal</span><span class=p>:</span>
+        <span class=k>if</span> <span class=n>v</span> <span class=o>==</span> <span class=n>HIGH_LEVEL_SIGNAL</span><span class=p>:</span>
+            <span class=n>v</span> <span class=o>=</span> <span class=p>[</span><span class=mi>1</span><span class=p>,</span> <span class=mi>0</span><span class=p>]</span>
+        <span class=k>elif</span> <span class=n>v</span> <span class=o>==</span> <span class=n>LOW_LEVEL_SIGNAL</span><span class=p>:</span>
+            <span class=n>v</span> <span class=o>=</span> <span class=p>[</span><span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>]</span>
+        <span class=n>result</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=n>v</span><span class=p>)</span>
+    <span class=k>return</span> <span class=n>result</span>
+
+
+<span class=k>def</span> <span class=nf>cdp</span><span class=p>(</span><span class=n>signal</span><span class=p>,</span> <span class=n>reverse_start</span><span class=o>=</span><span class=bp>False</span><span class=p>):</span>
+    <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>    差分曼彻斯特编码又叫条件双相码(CDP码).
+</span><span class=s2>    主要看两个相邻的波形,如果后一个波形和前一个的波形相同,则后一个波形表示0,如果波形不同,则表示1.
+</span><span class=s2>
+</span><span class=s2>    [注意]:如果在最初信号的时候,即第一个信号时(IEEE 802.3标准):
+</span><span class=s2>        如果中间位电平从低到高,则表示0；
+</span><span class=s2>        如果中间位电平从高到低,则表示1；
+</span><span class=s2>    &#34;&#34;&#34;</span>
+    <span class=n>first</span> <span class=o>=</span> <span class=n>signal</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span>
+    <span class=k>if</span> <span class=n>first</span> <span class=o>==</span> <span class=n>HIGH_LEVEL_SIGNAL</span><span class=p>:</span>
+        <span class=n>first</span> <span class=o>=</span> <span class=p>[</span><span class=mi>1</span><span class=p>,</span> <span class=mi>0</span><span class=p>]</span>
+    <span class=k>elif</span> <span class=n>first</span> <span class=o>==</span> <span class=n>LOW_LEVEL_SIGNAL</span><span class=p>:</span>
+        <span class=n>first</span> <span class=o>=</span> <span class=p>[</span><span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>]</span>
+    <span class=k>if</span> <span class=n>reverse_start</span><span class=p>:</span>
+        <span class=n>first</span><span class=o>.</span><span class=n>reverse</span><span class=p>()</span>
+    <span class=n>prev</span> <span class=o>=</span> <span class=n>first</span>
+    <span class=n>result</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=n>result</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=n>prev</span><span class=p>)</span>
+    <span class=k>for</span> <span class=n>v</span> <span class=ow>in</span> <span class=n>signal</span><span class=p>[</span><span class=mi>1</span><span class=p>:]:</span>
+        <span class=k>if</span> <span class=n>v</span> <span class=o>==</span> <span class=n>HIGH_LEVEL_SIGNAL</span><span class=p>:</span>
+            <span class=c1># 无跳变表示1, 波形与前一个相反</span>
+            <span class=n>prev</span><span class=o>.</span><span class=n>reverse</span><span class=p>()</span>
+            <span class=n>v</span> <span class=o>=</span> <span class=n>prev</span>
+        <span class=k>elif</span> <span class=n>v</span> <span class=o>==</span> <span class=n>LOW_LEVEL_SIGNAL</span><span class=p>:</span>
+            <span class=c1># 有跳变表示0, 波形与前一个相同</span>
+            <span class=n>v</span> <span class=o>=</span> <span class=n>prev</span>
+        <span class=n>result</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=n>v</span><span class=p>)</span>
+    <span class=k>return</span> <span class=n>result</span>
+
+
+<span class=k>def</span> <span class=nf>mlt_3</span><span class=p>(</span><span class=n>signal</span><span class=p>):</span>
+    <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>    MLT-3 编码
+</span><span class=s2>    1.如果下一比特是0，则输出值与前面的值相同；
+</span><span class=s2>    2.如果下一比特是1，则输出值就要有一个转变：
+</span><span class=s2>        如果前面输出的值是+V或-V，则下一输出为0；如果前面输出的值是0，则下一输出的值与上一个非0值符号相反
+</span><span class=s2>    &#34;&#34;&#34;</span>
+    <span class=n>last_nonzero</span> <span class=o>=</span> <span class=n>LOW_LEVEL_SIGNAL</span>
+    <span class=n>prev</span> <span class=o>=</span> <span class=n>HIGH_LEVEL_SIGNAL</span>
+    <span class=n>result</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=k>for</span> <span class=n>v</span> <span class=ow>in</span> <span class=n>signal</span><span class=p>:</span>
+        <span class=k>if</span> <span class=n>v</span> <span class=o>==</span> <span class=n>HIGH_LEVEL_SIGNAL</span><span class=p>:</span>
+            <span class=k>if</span> <span class=n>prev</span> <span class=o>!=</span> <span class=n>LOW_LEVEL_SIGNAL</span><span class=p>:</span>
+                <span class=n>v</span> <span class=o>=</span> <span class=n>LOW_LEVEL_SIGNAL</span>
+            <span class=k>else</span><span class=p>:</span>
+                <span class=k>if</span> <span class=n>last_nonzero</span> <span class=o>==</span> <span class=n>LOW_LEVEL_SIGNAL</span><span class=p>:</span>
+                    <span class=n>v</span> <span class=o>=</span> <span class=n>NEGATIVE_HIGH_LEVEL_SIGNAL</span>
+                <span class=k>elif</span> <span class=n>last_nonzero</span> <span class=o>==</span> <span class=n>NEGATIVE_HIGH_LEVEL_SIGNAL</span><span class=p>:</span>
+                    <span class=n>v</span> <span class=o>=</span> <span class=n>HIGH_LEVEL_SIGNAL</span>
+                <span class=n>last_nonzero</span> <span class=o>=</span> <span class=n>v</span>
+        <span class=k>elif</span> <span class=n>v</span> <span class=o>==</span> <span class=n>LOW_LEVEL_SIGNAL</span><span class=p>:</span>
+            <span class=c1># 为0则波形与前一个相同</span>
+            <span class=n>v</span> <span class=o>=</span> <span class=n>prev</span>
+        <span class=n>result</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>v</span><span class=p>)</span>
+        <span class=n>prev</span> <span class=o>=</span> <span class=n>v</span>
+    <span class=k>return</span> <span class=n>result</span>
+
+
+<span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+    <span class=n>signal</span> <span class=o>=</span> <span class=nb>list</span><span class=p>(</span><span class=nb>map</span><span class=p>(</span><span class=nb>int</span><span class=p>,</span> <span class=s2>&#34;011000101111&#34;</span><span class=p>))</span>
+    <span class=k>print</span><span class=p>(</span><span class=s1>&#39;非归零编码:&#39;</span><span class=p>,</span> <span class=n>nrz</span><span class=p>(</span><span class=n>signal</span><span class=p>))</span>
+    <span class=k>print</span><span class=p>(</span><span class=s1>&#39;非归零反转编码:&#39;</span><span class=p>,</span> <span class=n>nrzi</span><span class=p>(</span><span class=n>signal</span><span class=p>))</span>
+    <span class=k>print</span><span class=p>(</span><span class=s1>&#39;曼彻斯特编码:&#39;</span><span class=p>,</span> <span class=n>pe</span><span class=p>(</span><span class=n>signal</span><span class=p>))</span>
+    <span class=k>print</span><span class=p>(</span><span class=s1>&#39;差分曼彻斯特编码:&#39;</span><span class=p>,</span> <span class=n>cdp</span><span class=p>(</span><span class=n>signal</span><span class=p>))</span>
+    <span class=k>print</span><span class=p>(</span><span class=s1>&#39;MLT-3 编码:&#39;</span><span class=p>,</span> <span class=n>mlt_3</span><span class=p>(</span><span class=n>signal</span><span class=p>))</span>
+
+
+    <span class=kn>from</span> <span class=nn>pylab</span> <span class=kn>import</span> <span class=o>*</span>
+    <span class=n>x</span> <span class=o>=</span> <span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>signal</span><span class=p>)</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span>
+    <span class=n>x2</span> <span class=o>=</span> <span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>signal</span><span class=p>)</span> <span class=o>*</span> <span class=mi>2</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span>
+    <span class=n>y</span> <span class=o>=</span> <span class=n>signal</span>
+
+    <span class=n>subplot</span><span class=p>(</span><span class=mi>511</span><span class=p>)</span>
+    <span class=n>nrz_result</span> <span class=o>=</span> <span class=n>nrz</span><span class=p>(</span><span class=n>signal</span><span class=p>)</span>  <span class=c1># 非归零编码</span>
+    <span class=n>title</span><span class=p>(</span><span class=s2>&#34;nrz&#34;</span><span class=p>)</span>
+    <span class=n>axis</span><span class=p>([</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=o>-</span><span class=mf>0.2</span><span class=p>,</span> <span class=mf>1.2</span><span class=p>])</span>
+    <span class=n>grid</span><span class=p>(</span><span class=bp>True</span><span class=p>)</span>
+    <span class=n>frame</span> <span class=o>=</span> <span class=n>gca</span><span class=p>()</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_xaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_yaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>step</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>nrz_result</span><span class=p>[:</span><span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>nrz_result</span><span class=p>,</span> <span class=n>label</span><span class=o>=</span><span class=s2>&#34;nrz&#34;</span><span class=p>)</span>
+
+    <span class=n>subplot</span><span class=p>(</span><span class=mi>512</span><span class=p>)</span>
+    <span class=n>nrzi_result</span> <span class=o>=</span> <span class=n>nrzi</span><span class=p>(</span><span class=n>signal</span><span class=p>)</span>  <span class=c1># 非归零反转编码</span>
+    <span class=n>title</span><span class=p>(</span><span class=s2>&#34;nrzi&#34;</span><span class=p>)</span>
+    <span class=n>axis</span><span class=p>([</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=o>-</span><span class=mf>0.2</span><span class=p>,</span> <span class=mf>1.2</span><span class=p>])</span>
+    <span class=n>grid</span><span class=p>(</span><span class=bp>True</span><span class=p>)</span>
+    <span class=n>frame</span> <span class=o>=</span> <span class=n>gca</span><span class=p>()</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_xaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_yaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>step</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>nrzi_result</span><span class=p>[:</span><span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>nrzi_result</span><span class=p>,</span> <span class=n>label</span><span class=o>=</span><span class=s2>&#34;nrzi&#34;</span><span class=p>)</span>
+
+    <span class=n>subplot</span><span class=p>(</span><span class=mi>513</span><span class=p>)</span>
+    <span class=n>pe_result</span> <span class=o>=</span> <span class=n>pe</span><span class=p>(</span><span class=n>signal</span><span class=p>)</span>  <span class=c1># 曼彻斯特编码</span>
+    <span class=n>title</span><span class=p>(</span><span class=s2>&#34;pe&#34;</span><span class=p>)</span>
+    <span class=n>axis</span><span class=p>([</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>x2</span><span class=p>),</span> <span class=o>-</span><span class=mf>0.2</span><span class=p>,</span> <span class=mf>1.2</span><span class=p>])</span>
+    <span class=n>grid</span><span class=p>(</span><span class=bp>True</span><span class=p>)</span>
+    <span class=n>frame</span> <span class=o>=</span> <span class=n>gca</span><span class=p>()</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_xaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_yaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>step</span><span class=p>(</span><span class=n>x2</span><span class=p>,</span> <span class=n>pe_result</span><span class=p>[:</span><span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>pe_result</span><span class=p>,</span> <span class=n>label</span><span class=o>=</span><span class=s2>&#34;pe&#34;</span><span class=p>)</span>
+
+    <span class=n>subplot</span><span class=p>(</span><span class=mi>514</span><span class=p>)</span>
+    <span class=n>cdp_result</span> <span class=o>=</span> <span class=n>cdp</span><span class=p>(</span><span class=n>signal</span><span class=p>,</span> <span class=n>reverse_start</span><span class=o>=</span><span class=bp>True</span><span class=p>)</span>  <span class=c1># 差分曼彻斯特编码</span>
+    <span class=n>title</span><span class=p>(</span><span class=s2>&#34;cdp&#34;</span><span class=p>)</span>
+    <span class=n>axis</span><span class=p>([</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>x2</span><span class=p>),</span> <span class=o>-</span><span class=mf>0.2</span><span class=p>,</span> <span class=n>amax</span><span class=p>(</span><span class=n>y</span><span class=p>)</span> <span class=o>*</span> <span class=mf>1.2</span><span class=p>])</span>
+    <span class=n>grid</span><span class=p>(</span><span class=bp>True</span><span class=p>)</span>
+    <span class=n>frame</span> <span class=o>=</span> <span class=n>gca</span><span class=p>()</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_xaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_yaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>step</span><span class=p>(</span><span class=n>x2</span><span class=p>,</span> <span class=n>cdp_result</span><span class=p>[:</span><span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>cdp_result</span><span class=p>,</span> <span class=n>label</span><span class=o>=</span><span class=s2>&#34;cdp&#34;</span><span class=p>)</span>
+
+    <span class=n>subplot</span><span class=p>(</span><span class=mi>515</span><span class=p>)</span>
+    <span class=n>mlt_3_result</span> <span class=o>=</span> <span class=n>mlt_3</span><span class=p>(</span><span class=n>signal</span><span class=p>)</span>  <span class=c1># MLT-3编码</span>
+    <span class=n>title</span><span class=p>(</span><span class=s2>&#34;mlt_3&#34;</span><span class=p>)</span>
+    <span class=n>axis</span><span class=p>([</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=o>-</span><span class=mf>1.2</span><span class=p>,</span> <span class=n>amax</span><span class=p>(</span><span class=n>y</span><span class=p>)</span> <span class=o>*</span> <span class=mf>1.2</span><span class=p>])</span>
+    <span class=n>grid</span><span class=p>(</span><span class=bp>True</span><span class=p>)</span>
+    <span class=n>frame</span> <span class=o>=</span> <span class=n>gca</span><span class=p>()</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_xaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>frame</span><span class=o>.</span><span class=n>axes</span><span class=o>.</span><span class=n>get_yaxis</span><span class=p>()</span><span class=o>.</span><span class=n>set_visible</span><span class=p>(</span><span class=bp>False</span><span class=p>)</span>
+    <span class=n>step</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>mlt_3_result</span><span class=p>[:</span><span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>mlt_3_result</span><span class=p>,</span> <span class=n>label</span><span class=o>=</span><span class=s2>&#34;mlt_3&#34;</span><span class=p>)</span>
+
+    <span class=n>subplots_adjust</span><span class=p>(</span><span class=n>hspace</span><span class=o>=</span><span class=mf>0.5</span><span class=p>)</span>
+    <span class=n>show</span><span class=p>()</span>
+</code></pre></td></tr></table></div></div><p>输出结果：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-text data-lang=text>非归零编码: [0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1]
+非归零反转编码: [0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1]
+曼彻斯特编码: [0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0]
+差分曼彻斯特编码: [0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0]
+MLT-3 编码: [1, 0, -1, -1, -1, -1, 0, 0, 1, 0, 1, 0]
+</code></pre></td></tr></table></div></div><p>对比图像：</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/Figure_1.png data-srcset="https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/img/Figure_1.png, img/Figure_1.png 1.5x, https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/img/Figure_1.png 2x" data-sizes=auto alt=/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/img/Figure_1.png title=/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/img/Figure_1.png></p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2015-10-18</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/ data-title=计算机网络信道的数字编码 data-hashtags=计算机网络><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/ data-hashtag=计算机网络><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/ data-title=计算机网络信道的数字编码 data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/ data-title=计算机网络信道的数字编码><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/ data-title=计算机网络信道的数字编码><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/ data-title=计算机网络信道的数字编码 data-description><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/ data-title=计算机网络信道的数字编码 data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://www.elonzh.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BF%A1%E9%81%93%E7%9A%84%E6%95%B0%E5%AD%97%E7%BC%96%E7%A0%81/ data-title=计算机网络信道的数字编码><i class="fab fa-evernote fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=https://www.elonzh.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/>计算机网络</a></section><section><span><a href=javascript:void(0); onclick=window.history.back();>返回</a></span>&nbsp;|&nbsp;<span><a href=https://www.elonzh.com/>主页</a></span></section></div><div class=post-nav><a href=https://www.elonzh.com/linux-%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%E7%B3%BB%E7%BB%9F%E6%8E%A2%E7%A9%B6/ class=next rel=next title="Linux 文件权限系统探究">Linux 文件权限系统探究<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=disqus_thread class=comment></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://disqus.com/?ref_noscript>Disqus</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.68.3">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i>LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2019 - 2020</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://www.elonzh.com/ target=_blank>Elon Zhou</a></span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i></a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><link rel=stylesheet href=https://www.elonzh.com/lib/katex/katex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/katex/copy-tex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=https://elonzh.disqus.com/embed.js defer></script><script type=text/javascript src=https://www.elonzh.com/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/sharer/sharer.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/katex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/auto-render.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/copy-tex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/mhchem.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":30},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","lunrIndexURL":"/index.json","lunrLanguageCode":"zh","lunrSegmentitURL":"/lib/lunr/lunr.segmentit.js","maxResultLength":10,"noResultsFound":"没有找到结果","snippetLength":50,"type":"lunr"}};</script><script type=text/javascript src=https://www.elonzh.com/js/theme.min.js></script></body></html>

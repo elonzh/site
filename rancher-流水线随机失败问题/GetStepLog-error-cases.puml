@@ -1,0 +1,29 @@
+@startuml GetStepLog error cases
+participant "Rancher Server" as r
+participant "Jenkins Server" as p
+
+== Case "Error WF Node for the step not found" ==
+
+r -> r:getJenkinsClient
+activate p
+r -> p:getWFBuildInfo
+deactivate p
+note right:POD restarted
+r <-- p:return empty WFBuildInfo
+r -> r:"Error WF Node for the step not found"
+destroy r
+
+== Case "Error step Node not found" ==
+
+r -> r:getJenkinsClient
+r -> p:getWFBuildInfo
+r <- p:WFBuildInfo
+activate p
+r -> p:getWFNodeInfo
+deactivate p
+note right:POD restarted
+r <-- p:return empty WFNodeInfo
+r -> r: "Error step Node not found"
+destroy r
+
+@enduml

@@ -1,0 +1,22 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-balancing-client
+  labels:
+    app: load-balancing-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-balancing-client
+  template:
+    metadata:
+      labels:
+        app: load-balancing-client
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+        - name: app
+          image: test/load_balancing_test:latest
+          command: ["./load_balancing_client"]

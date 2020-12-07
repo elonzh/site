@@ -1,0 +1,42 @@
+{
+    "_links": {
+        "self": {
+            "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/51/wfapi/describe"
+        }
+    },
+    "id": "51",
+    "name": "step-1-0",
+    "execNode": "",
+    "status": "FAILED",
+    "error": {
+        "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+        "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+    },
+    "startTimeMillis": 1590994246515,
+    "durationMillis": 144888,
+    "pauseDurationMillis": 0,
+    "stageFlowNodes": [
+        {
+            "_links": {
+                "self": {
+                    "href": "/job/pipeline_p-wdg7z-25/lastBuild/execution/node/96/wfapi/describe"
+                }
+            },
+            "id": "96",
+            "name": "Shell Script",
+            "execNode": "",
+            "status": "FAILED",
+            "error": {
+                "message": "Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node",
+                "type": "org.jenkinsci.plugins.workflow.steps.MissingContextVariableException"
+            },
+            "parameterDescription": " go env -w GO111MODULE=on\ngo env -w GOPROXY=https://goproxy.cn,direct\ngo install github.com/gohugoio/hugo ",
+            "startTimeMillis": 1590994349914,
+            "durationMillis": 574,
+            "pauseDurationMillis": 0,
+            "parentNodes": [
+                "71"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,1706 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Rancher 流水线随机失败问题 - Life Log</title><meta name=Description content="这是我的全新 Hugo 网站"><meta property="og:title" content="Rancher 流水线随机失败问题"><meta property="og:description" content="最近在使用 Rancher 测试集群时流水线会偶发性的失败，提示 &#34;Error step Node not found&#34;，稍微搜索了一下在官方找到了一个 issue1，问题描述如下： 流"><meta property="og:type" content="article"><meta property="og:url" content="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/"><meta property="og:image" content="https://www.elonzh.com/logo.png"><meta property="article:published_time" content="2020-05-26T14:31:54+08:00"><meta property="article:modified_time" content="2020-05-26T14:31:54+08:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://www.elonzh.com/logo.png"><meta name=twitter:title content="Rancher 流水线随机失败问题"><meta name=twitter:description content="最近在使用 Rancher 测试集群时流水线会偶发性的失败，提示 &#34;Error step Node not found&#34;，稍微搜索了一下在官方找到了一个 issue1，问题描述如下： 流"><meta name=application-name content="LoveIt"><meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=https://www.elonzh.com/favicon.ico><link rel=icon type=image/png sizes=32x32 href=https://www.elonzh.com/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=https://www.elonzh.com/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=https://www.elonzh.com/apple-touch-icon.png><link rel=mask-icon href=https://www.elonzh.com/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=https://www.elonzh.com/site.webmanifest><link rel=canonical href=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/><link rel=prev href=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/><link rel=next href=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/><link rel=stylesheet href=https://www.elonzh.com/lib/normalize/normalize.min.css><link rel=stylesheet href=https://www.elonzh.com/css/style.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/fontawesome-free/all.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Rancher 流水线随机失败问题","inLanguage":"zh-cn","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/www.elonzh.com\/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98\/"},"genre":"posts","keywords":"Rancher, Jenkins","wordcount":4732,"url":"https:\/\/www.elonzh.com\/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98\/","datePublished":"2020-05-26T14:31:54+08:00","dateModified":"2020-05-26T14:31:54+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Elon Zhou"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':('auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark'))&&document.body.setAttribute('theme','dark');</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu><div class=menu-inner><a class=menu-item href=https://www.elonzh.com/>首页 </a><a class=menu-item href=https://www.elonzh.com/posts/>文章 </a><a class=menu-item href=https://www.elonzh.com/tags/>标签 </a><a class=menu-item href=https://www.elonzh.com/categories/>分类 </a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片 </a><a class=menu-item href=https://www.elonzh.com/about/>关于 </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop><input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin"></i></span></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin"></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>取消</a></div><a class=menu-item href=https://www.elonzh.com/>首页</a><a class=menu-item href=https://www.elonzh.com/posts/>文章</a><a class=menu-item href=https://www.elonzh.com/tags/>标签</a><a class=menu-item href=https://www.elonzh.com/categories/>分类</a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片</a><a class=menu-item href=https://www.elonzh.com/about/>关于</a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Rancher 流水线随机失败问题</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://www.elonzh.com/ title=Author rel=author class=author><i class="fas fa-user-circle fa-fw"></i>Elon Zhou</a></span>&nbsp;<span class=post-category>收录于 <a href=https://www.elonzh.com/categories/devops/><i class="far fa-folder fa-fw"></i>devops</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2020-05-26>2020-05-26</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 4732 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 10 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#rancher-流水线基本概念和原理>Rancher 流水线基本概念和原理</a></li><li><a href=#问题分析>问题分析</a></li><li><a href=#真的是这样吗>真的是这样吗？</a></li><li><a href=#问题复现>问题复现</a><ul><li><a href=#使用重启-jenkins-的方式复现错误>使用重启 jenkins 的方式复现错误</a></li><li><a href=#直接同时触发多个流水线复现错误>直接同时触发多个流水线复现错误</a><ul><li><a href=#pipelineexecution-p-wdg7z-24>PipelineExecution: p-wdg7z-24</a></li><li><a href=#pipelineexecution-p-wdg7z-25>PipelineExecution: p-wdg7z-25</a></li></ul></li></ul></li><li><a href=#总结>总结</a></li></ul></nav></div></div><div class=content id=content><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-05-26-16-11-17.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-26-16-11-17.png, img/2020-05-26-16-11-17.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-26-16-11-17.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-26-16-11-17.png title=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-26-16-11-17.png></p><p>最近在使用 Rancher 测试集群时流水线会偶发性的失败，提示 <code>"Error step Node not found"</code>，稍微搜索了一下在官方找到了一个 issue<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>，问题描述如下：</p><hr><p>流水线分为多个阶段，每个阶段会有多个步骤同时进行，流水线执行时会有一定概率出现以下三种问题：</p><ul><li><code>"Error WF Node for the step not found"</code></li><li><code>"Error step Node not found"</code></li><li><code>"Get http://10.43.219.169:8080/job/pipeline_p-jhz9s-528/lastBuild/wfapi/: net/http: request canceled (Client.Timeout exceeded while awaiting headers)"</code></li></ul><p>并提供了错误产生的代码位置： <a href=https://github.com/rancher/rancher/blob/0f081729cac35b18bdd7ff2922da4f9e0db7701c/pkg/pipeline/engine/jenkins/engine.go#L613>https://github.com/rancher/rancher/blob/0f081729cac35b18bdd7ff2922da4f9e0db7701c/pkg/pipeline/engine/jenkins/engine.go#L613</a></p><p>用户尝试了以下操作：</p><ul><li>添加了一台 64GB 内存的机器</li><li>升级 Rancher 版本到 2.3.2</li><li>将发布阶段的多个步骤拆分到了多个阶段，不再并行执行</li></ul><p>结果是<strong>错误仍然出现但概率降低了</strong>。</p><hr><p>稍加分析，从这个 issue 能推断出哪些信息呢？</p><ol><li>WHERE: 至少在 Rancher 2.3.2 问题仍然是存在的，并且有错误输出的代码位置</li><li>HOW: 添加机器，拆分流水线能降低问题发生概率降低了，问题可能和容器运行时的资源有关，比如 OOM 导致容器被杀死</li><li>WHEN: 有多种错误会出现，问题可能发生在不同的阶段</li><li>WHO: 外部请求失败，可能是流水线依赖的服务出现了问题</li></ol><h2 id=rancher-流水线基本概念和原理>Rancher 流水线基本概念和原理</h2><ul><li><a href=https://rancher2.docs.rancher.cn/docs/k8s-in-rancher/pipelines/concepts/_index target=_blank rel="noopener noreffer">流水线中的概念</a></li><li><a href=https://rancher2.docs.rancher.cn/docs/k8s-in-rancher/pipelines/_index/#%E6%B5%81%E6%B0%B4%E7%BA%BF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86 target=_blank rel="noopener noreffer">流水线的工作原理</a></li></ul><p>rancher 流水线基本上只是对 jenkins 进行简单的封装，基本原理如下：</p><ol><li>通过授权拿到代码仓库信息，创建代码仓库 Webhook 用于触发流水线</li><li>流水线触发时 <code>.rancher-pipeline.yml</code> 流水线配置会被转换成 jenkins Pipeline 脚本</li><li>rancher server 通过 jenkins API 与 jenkins master 交互，创建 job</li><li>jenkins master 创建 slave （buildpod）执行流水线</li><li>rancher server 通过 jenkins API 同步状态及日志</li></ol><p>以下面的流水线配置为例：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=k>stages</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span>- <span class=k>name</span><span class=p>:</span><span class=w> </span>Stage1<span class=w>
+</span><span class=w>    </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span>- <span class=k>runScriptConfig</span><span class=p>:</span><span class=w>
+</span><span class=w>          </span><span class=k>image</span><span class=p>:</span><span class=w> </span>busybox<span class=w>
+</span><span class=w>          </span><span class=k>shellScript</span><span class=p>:</span><span class=w> </span>|<span class=sd>-
+</span><span class=sd>            echo &#34;this is stage 1 step 1&#34;</span><span class=w>
+</span><span class=w>      </span>- <span class=k>runScriptConfig</span><span class=p>:</span><span class=w>
+</span><span class=w>          </span><span class=k>image</span><span class=p>:</span><span class=w> </span>busybox<span class=w>
+</span><span class=w>          </span><span class=k>shellScript</span><span class=p>:</span><span class=w> </span>|<span class=sd>-
+</span><span class=sd>            echo &#34;this is stage 1 step 2&#34;</span><span class=w>
+</span><span class=w>  </span>- <span class=k>name</span><span class=p>:</span><span class=w> </span>Stage2<span class=w>
+</span><span class=w>    </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span>- <span class=k>runScriptConfig</span><span class=p>:</span><span class=w>
+</span><span class=w>          </span><span class=k>image</span><span class=p>:</span><span class=w> </span>busybox<span class=w>
+</span><span class=w>          </span><span class=k>shellScript</span><span class=p>:</span><span class=w> </span>|<span class=sd>-
+</span><span class=sd>            echo &#34;this is stage 2 step 1&#34;</span><span class=w>
+</span><span class=w>      </span>- <span class=k>runScriptConfig</span><span class=p>:</span><span class=w>
+</span><span class=w>          </span><span class=k>image</span><span class=p>:</span><span class=w> </span>busybox<span class=w>
+</span><span class=w>          </span><span class=k>shellScript</span><span class=p>:</span><span class=w> </span>|<span class=sd>-
+</span><span class=sd>            echo &#34;this is stage 2 step 2&#34;</span><span class=w>
+</span><span class=w></span><span class=k>timeout</span><span class=p>:</span><span class=w> </span><span class=m>60</span><span class=w>
+</span><span class=w></span><span class=k>notification</span><span class=p>:</span><span class=w> </span>{}<span class=w>
+</span></code></pre></td></tr></table></div></div><p>实际执行会被转换成如下 jenkins Pipeline 脚本：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span><span class=lnt>94
+</span><span class=lnt>95
+</span><span class=lnt>96
+</span><span class=lnt>97
+</span><span class=lnt>98
+</span><span class=lnt>99
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-groovy data-lang=groovy><span class=kn>import</span> <span class=nn>org.jenkinsci.plugins.pipeline.modeldefinition.Utils</span>
+<span class=kt>def</span> <span class=n>label</span> <span class=o>=</span> <span class=s2>&#34;buildpod.${env.JOB_NAME}.${env.BUILD_NUMBER}&#34;</span><span class=o>.</span><span class=na>replace</span><span class=o>(</span><span class=s1>&#39;-&#39;</span><span class=o>,</span> <span class=s1>&#39;_&#39;</span><span class=o>).</span><span class=na>replace</span><span class=o>(</span><span class=s1>&#39;/&#39;</span><span class=o>,</span> <span class=s1>&#39;_&#39;</span><span class=o>)</span>
+<span class=n>podTemplate</span><span class=o>(</span><span class=nl>label:</span> <span class=n>label</span><span class=o>,</span> <span class=nl>instanceCap:</span> <span class=mi>1</span><span class=o>,</span> <span class=nl>yaml:</span> <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>apiVersion: v1
+</span><span class=s1>kind: Pod
+</span><span class=s1>metadata:
+</span><span class=s1>  creationTimestamp: null
+</span><span class=s1>  labels:
+</span><span class=s1>    app: jenkins
+</span><span class=s1>    execution: p-dv8kn-5
+</span><span class=s1>  namespace: p-f5pd2-pipeline
+</span><span class=s1>spec:
+</span><span class=s1>  affinity:
+</span><span class=s1>    nodeAffinity:
+</span><span class=s1>      preferredDuringSchedulingIgnoredDuringExecution:
+</span><span class=s1>      - preference:
+</span><span class=s1>          matchExpressions:
+</span><span class=s1>          - key: pipeline.project.cattle.io/node
+</span><span class=s1>            operator: In
+</span><span class=s1>            values:
+</span><span class=s1>            - jenkins
+</span><span class=s1>        weight: 100
+</span><span class=s1>    podAntiAffinity:
+</span><span class=s1>      preferredDuringSchedulingIgnoredDuringExecution:
+</span><span class=s1>      - podAffinityTerm:
+</span><span class=s1>          labelSelector:
+</span><span class=s1>            matchExpressions:
+</span><span class=s1>            - key: app
+</span><span class=s1>              operator: In
+</span><span class=s1>              values:
+</span><span class=s1>              - jenkins
+</span><span class=s1>          topologyKey: kubernetes.io/hostname
+</span><span class=s1>        weight: 100
+</span><span class=s1>  containers:
+</span><span class=s1>  - command:
+</span><span class=s1>    - cat
+</span><span class=s1>    env:
+</span><span class=s1>    ...
+</span><span class=s1>    image: rancher/pipeline-tools:v0.1.14
+</span><span class=s1>    name: step-0-0
+</span><span class=s1>    resources:
+</span><span class=s1>      limits:
+</span><span class=s1>        cpu: 300m
+</span><span class=s1>        memory: 100Mi
+</span><span class=s1>      requests:
+</span><span class=s1>        cpu: 10m
+</span><span class=s1>        memory: 10Mi
+</span><span class=s1>    tty: true
+</span><span class=s1>  ...x3...
+</span><span class=s1>  - args:
+</span><span class=s1>    - $(JENKINS_SECRET)
+</span><span class=s1>    - $(JENKINS_NAME)
+</span><span class=s1>    env:
+</span><span class=s1>    ...
+</span><span class=s1>    image: rancher/jenkins-jnlp-slave:3.35-4
+</span><span class=s1>    name: jnlp
+</span><span class=s1>    resources:
+</span><span class=s1>      limits:
+</span><span class=s1>        cpu: &#34;1&#34;
+</span><span class=s1>        memory: 1Gi
+</span><span class=s1>      requests:
+</span><span class=s1>        cpu: 10m
+</span><span class=s1>        memory: 10Mi
+</span><span class=s1>...
+</span><span class=s1>&#39;&#39;&#39;</span>
+<span class=o>)</span> <span class=o>{</span>
+    <span class=n>node</span><span class=o>(</span><span class=n>label</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>timestamps</span> <span class=o>{</span>
+            <span class=n>timeout</span><span class=o>(</span><span class=mi>60</span><span class=o>)</span> <span class=o>{</span>
+                <span class=n>stage</span><span class=o>(</span><span class=s1>&#39;Clone&#39;</span><span class=o>){</span>
+                    <span class=n>parallel</span> <span class=s1>&#39;step-0-0&#39;</span><span class=o>:</span> <span class=o>{</span>
+                        <span class=n>stage</span><span class=o>(</span><span class=s1>&#39;step-0-0&#39;</span><span class=o>){</span>
+                            <span class=n>container</span><span class=o>(</span><span class=nl>name:</span> <span class=s1>&#39;step-0-0&#39;</span><span class=o>)</span> <span class=o>{</span>
+                                <span class=n>checkout</span><span class=o>([</span><span class=n>$class</span><span class=o>:</span> <span class=s1>&#39;GitSCM&#39;</span><span class=o>,</span> <span class=nl>branches:</span> <span class=o>[[</span><span class=nl>name:</span> <span class=s1>&#39;local/temp&#39;</span><span class=o>]],</span> <span class=nl>doGenerateSubmoduleConfigurations:</span> <span class=kc>false</span><span class=o>,</span> <span class=nl>extensions:</span> <span class=o>[[</span><span class=n>$class</span><span class=o>:</span> <span class=s1>&#39;CloneOption&#39;</span><span class=o>,</span> <span class=nl>honorRefspec:</span> <span class=kc>true</span><span class=o>,</span> <span class=nl>noTags:</span> <span class=kc>false</span><span class=o>,</span> <span class=nl>reference:</span> <span class=s1>&#39;&#39;</span><span class=o>,</span> <span class=nl>shallow:</span> <span class=kc>true</span><span class=o>]],</span> <span class=nl>userRemoteConfigs:</span> <span class=o>[[</span><span class=nl>url:</span> <span class=s1>&#39;http://gitlab.yzf.net/zhouerliang/pipeline-test.git&#39;</span><span class=o>,</span> <span class=nl>refspec:</span> <span class=s1>&#39;+refs/heads/sample-pipeline:refs/remotes/local/temp&#39;</span><span class=o>,</span> <span class=nl>credentialsId:</span> <span class=s1>&#39;p-dv8kn-5&#39;</span><span class=o>]]])</span>
+                            <span class=o>}</span>
+                        <span class=o>}</span>
+                    <span class=o>}</span>
+                <span class=o>}</span>
+                <span class=n>stage</span><span class=o>(</span><span class=s1>&#39;Stage1&#39;</span><span class=o>){</span>
+                    <span class=n>parallel</span> <span class=s1>&#39;step-1-0&#39;</span><span class=o>:</span> <span class=o>{</span>
+                        <span class=n>stage</span><span class=o>(</span><span class=s1>&#39;step-1-0&#39;</span><span class=o>){</span>
+                            <span class=n>container</span><span class=o>(</span><span class=nl>name:</span> <span class=s1>&#39;step-1-0&#39;</span><span class=o>)</span> <span class=o>{</span>
+                                <span class=n>sh</span> <span class=s1>&#39;&#39;&#39; echo &#34;this is stage 1 step 1&#34; &#39;&#39;&#39;</span>
+                            <span class=o>}</span>
+                        <span class=o>}</span>
+                    <span class=o>},</span><span class=s1>&#39;step-1-1&#39;</span><span class=o>:</span> <span class=o>{</span>
+                        <span class=n>stage</span><span class=o>(</span><span class=s1>&#39;step-1-1&#39;</span><span class=o>){</span>
+                            <span class=n>container</span><span class=o>(</span><span class=nl>name:</span> <span class=s1>&#39;step-1-1&#39;</span><span class=o>)</span> <span class=o>{</span>
+                                <span class=n>sh</span> <span class=s1>&#39;&#39;&#39; echo &#34;this is stage 1 step 2&#34; &#39;&#39;&#39;</span>
+                            <span class=o>}</span>
+                        <span class=o>}</span>
+                    <span class=o>}</span>
+                <span class=o>}</span>
+                <span class=n>stage</span><span class=o>(</span><span class=s1>&#39;Stage2&#39;</span><span class=o>)</span>
+                <span class=o>...</span>
+            <span class=o>}</span>
+        <span class=o>}</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>注意这里</p><ul><li><code>nodeAffinity</code>，尽量选择标记了 <code>jenkins</code> 的节点，应当是对专门流水线节点的支持</li><li><code>podAntiAffinity</code>，尽量将流水线的 pod 不放在一起，应当是因为 <code>rancher/jenkins-jnlp-slave</code><sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup> 使用了 dind<sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup>，将 pod 打散避免执行阻塞住</li></ul><p>另外，rancher 实际只是将 jenkins 服务作为执行引擎，不依赖任何 jenkins 存储任何执行记录，流水线相关的配置和执行记录通过 rancher 集群的 CRD 完成。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-text data-lang=text>pipelineexecutions.project.cattle.io
+pipelines.project.cattle.io
+pipelinesettings.project.cattle.io
+</code></pre></td></tr></table></div></div><p>换句话说，jenkins master pod 重启会导致其 build 数据丢失，但不影响流水线记录数据。</p><p>下面的内容中，关于 jenkins 的一些概念这里也补充说明下：</p><ul><li>Workflow，其实就是 jenkins Pipeline 的曾用名</li><li>Node, node, agent 以及 slave 都用来指被 jenkins master 管理的用来执行 jenkins jobs 的服务器。主要区别是 agents 用在表述性pipeline中，可以不仅仅是 nodes，还可以是容器等， 而 node 用在脚本化pipeline中<sup id=fnref:4><a href=#fn:4 class=footnote-ref role=doc-noteref>4</a></sup>。</li></ul><h2 id=问题分析>问题分析</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=p>(</span><span class=nx>j</span> <span class=nx>Engine</span><span class=p>)</span> <span class=nf>getStepLogFromJenkins</span><span class=p>(</span><span class=nx>execution</span> <span class=o>*</span><span class=nx>v3</span><span class=p>.</span><span class=nx>PipelineExecution</span><span class=p>,</span> <span class=nx>stage</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>step</span> <span class=kt>int</span><span class=p>)</span> <span class=p>(</span><span class=kt>string</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+	<span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>execution</span><span class=p>.</span><span class=nx>Status</span><span class=p>.</span><span class=nx>Stages</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=nx>stage</span> <span class=o>||</span> <span class=nb>len</span><span class=p>(</span><span class=nx>execution</span><span class=p>.</span><span class=nx>Status</span><span class=p>.</span><span class=nx>Stages</span><span class=p>[</span><span class=nx>stage</span><span class=p>].</span><span class=nx>Steps</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=nx>step</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=s>&#34;&#34;</span><span class=p>,</span> <span class=nx>errors</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=s>&#34;invalid step index&#34;</span><span class=p>)</span>
+	<span class=p>}</span>
+	<span class=nx>jobName</span> <span class=o>:=</span> <span class=nf>getJobName</span><span class=p>(</span><span class=nx>execution</span><span class=p>)</span>
+	<span class=nx>client</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>j</span><span class=p>.</span><span class=nf>getJenkinsClient</span><span class=p>(</span><span class=nx>execution</span><span class=p>)</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=s>&#34;&#34;</span><span class=p>,</span> <span class=nx>err</span>
+	<span class=p>}</span>
+	<span class=nx>info</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>client</span><span class=p>.</span><span class=nf>getWFBuildInfo</span><span class=p>(</span><span class=nx>jobName</span><span class=p>)</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=s>&#34;&#34;</span><span class=p>,</span> <span class=nx>err</span>
+	<span class=p>}</span>
+	<span class=nx>WFnodeID</span> <span class=o>:=</span> <span class=s>&#34;&#34;</span>
+	<span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>jStage</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>info</span><span class=p>.</span><span class=nx>Stages</span> <span class=p>{</span>
+		<span class=k>if</span> <span class=nx>jStage</span><span class=p>.</span><span class=nx>Name</span> <span class=o>==</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;step-%d-%d&#34;</span><span class=p>,</span> <span class=nx>stage</span><span class=p>,</span> <span class=nx>step</span><span class=p>)</span> <span class=p>{</span>
+			<span class=nx>WFnodeID</span> <span class=p>=</span> <span class=nx>jStage</span><span class=p>.</span><span class=nx>ID</span>
+			<span class=k>break</span>
+		<span class=p>}</span>
+	<span class=p>}</span>
+	<span class=k>if</span> <span class=nx>WFnodeID</span> <span class=o>==</span> <span class=s>&#34;&#34;</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=s>&#34;&#34;</span><span class=p>,</span> <span class=nx>errors</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=s>&#34;Error WF Node for the step not found&#34;</span><span class=p>)</span>
+	<span class=p>}</span>
+	<span class=nx>WFnodeInfo</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>client</span><span class=p>.</span><span class=nf>getWFNodeInfo</span><span class=p>(</span><span class=nx>jobName</span><span class=p>,</span> <span class=nx>WFnodeID</span><span class=p>)</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=s>&#34;&#34;</span><span class=p>,</span> <span class=nx>err</span>
+	<span class=p>}</span>
+	<span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>WFnodeInfo</span><span class=p>.</span><span class=nx>StageFlowNodes</span><span class=p>)</span> <span class=p>&lt;</span> <span class=mi>1</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=s>&#34;&#34;</span><span class=p>,</span> <span class=nx>errors</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=s>&#34;Error step Node not found&#34;</span><span class=p>)</span>
+	<span class=p>}</span>
+	<span class=nx>logNodeID</span> <span class=o>:=</span> <span class=nx>WFnodeInfo</span><span class=p>.</span><span class=nx>StageFlowNodes</span><span class=p>[</span><span class=mi>0</span><span class=p>].</span><span class=nx>ID</span>
+	<span class=nx>logrus</span><span class=p>.</span><span class=nf>Debugf</span><span class=p>(</span><span class=s>&#34;trying getWFNodeLog, %v, %v&#34;</span><span class=p>,</span> <span class=nx>jobName</span><span class=p>,</span> <span class=nx>logNodeID</span><span class=p>)</span>
+	<span class=nx>nodeLog</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>client</span><span class=p>.</span><span class=nf>getWFNodeLog</span><span class=p>(</span><span class=nx>jobName</span><span class=p>,</span> <span class=nx>logNodeID</span><span class=p>)</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=s>&#34;&#34;</span><span class=p>,</span> <span class=nx>err</span>
+	<span class=p>}</span>
+
+	<span class=k>return</span> <span class=nx>nodeLog</span><span class=p>.</span><span class=nx>Text</span><span class=p>,</span> <span class=kc>nil</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><ol><li>初始化 <code>JenkinsClient</code></li><li>根据 <code>jobName</code> 获取 <code>WFBuildInfo</code></li><li>遍历 <code>WFBuildInfo</code> 找到 <code>WFnodeID</code></li><li>根据 <code>WFnodeID</code> 获取 <code>WFnodeInfo</code></li><li>根据 <code>WFnodeInfo</code> 获取 <code>logNodeID</code></li><li>根据 <code>logNodeID</code> 获取 <code>nodeLog</code></li></ol><p>可以看到这个接口基本上就是请求 jenkins master 服务，再不同的参数间转换直到拿到执行日志。</p><p>从报错的位置来看，<code>"Error WF Node for the step not found"</code>，<code>"Error step Node not found"</code> 这两种报错都是因为返回的数据异常导致的。</p><p>会不会是 jenkins 重启导致的呢？看一下工作负载，果然有一次重启。</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-05-28-16-11-14.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-28-16-11-14.png, img/2020-05-28-16-11-14.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-28-16-11-14.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-28-16-11-14.png title="pod restart"></p><p><code>p-sw6jr</code> 是流水线出现问题的项目，从 jenkins build 记录来看，编号为 <code>11</code> 的记录丢失了：</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-05-26-17-34-05.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-26-17-34-05.png, img/2020-05-26-17-34-05.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-26-17-34-05.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-26-17-34-05.png title=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-26-17-34-05.png></p><p>这时候，看上去问题比较清晰了，jenkins 重启的时机不同会导致产生不同的错误。</p><p>当发出请求时，jenkins 正在重启，则出现请求失败，另外两种错误则是重启的时间不同产生的：</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/GetStepLog-error-cases.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/GetStepLog-error-cases.png, img/GetStepLog-error-cases.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/GetStepLog-error-cases.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/GetStepLog-error-cases.png title=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/GetStepLog-error-cases.png></p><h2 id=真的是这样吗>真的是这样吗？</h2><p>进一步浏览代码，发现 rancher 代码对从 jenkins 拿到的响应都是有检查的！</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=nf>checkHTTPError</span><span class=p>(</span><span class=nx>resp</span> <span class=o>*</span><span class=nx>http</span><span class=p>.</span><span class=nx>Response</span><span class=p>,</span> <span class=nx>event</span> <span class=kt>string</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+	<span class=k>if</span> <span class=nx>resp</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=kc>nil</span>
+	<span class=p>}</span>
+	<span class=k>if</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>StatusCode</span> <span class=p>&lt;</span> <span class=nx>http</span><span class=p>.</span><span class=nx>StatusOK</span> <span class=o>||</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>StatusCode</span> <span class=o>&gt;=</span> <span class=nx>http</span><span class=p>.</span><span class=nx>StatusBadRequest</span> <span class=p>{</span>
+		<span class=nx>data</span><span class=p>,</span> <span class=nx>_</span> <span class=o>:=</span> <span class=nx>ioutil</span><span class=p>.</span><span class=nf>ReadAll</span><span class=p>(</span><span class=nx>resp</span><span class=p>.</span><span class=nx>Body</span><span class=p>)</span>
+		<span class=k>return</span> <span class=nx>httperror</span><span class=p>.</span><span class=nf>NewAPIErrorLong</span><span class=p>(</span><span class=nx>resp</span><span class=p>.</span><span class=nx>StatusCode</span><span class=p>,</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;%s got %d&#34;</span><span class=p>,</span> <span class=nx>event</span><span class=p>,</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>StatusCode</span><span class=p>),</span> <span class=nb>string</span><span class=p>(</span><span class=nx>data</span><span class=p>))</span>
+	<span class=p>}</span>
+	<span class=k>return</span> <span class=kc>nil</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-05-27-17-54-57.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-27-17-54-57.png, img/2020-05-27-17-54-57.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-27-17-54-57.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-05-27-17-54-57.png title=404></p><p>如果是重启后再去请求相关的数据，当数据不存在时会返回 404 状态码并被客户端检测到！如果请求时有任何错误或者响应状态码校验不通过都会直接导致报错。也就是说我们遇到的情况从逻辑上说有两种可能：</p><ol><li>请求没有出错，响应不为空且状态码正常，但是没有返回相关字段的数据</li><li>请求没有出错，响应为空，此时相关的函数会返回空对象导致出错</li></ol><p>对于第二种可能，通过阅读 <code>http.Client</code> 相关代码发现，只要请求没有出错，响应就一定不为空，那么也就是只有第一种可能，<strong>jenkins 服务返回了不完整的数据</strong>。</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-06-01-16-29-45.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-01-16-29-45.png, img/2020-06-01-16-29-45.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-01-16-29-45.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-01-16-29-45.png title=Engine.getStepLogFromJenkins></p><h2 id=问题复现>问题复现</h2><p>测试集群使用单台服务器，配置如图：</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-06-02-10-25-16.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-25-16.png, img/2020-06-02-10-25-16.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-25-16.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-25-16.png title=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-25-16.png></p><p>这里使用 2 个 stage，每个 stage 10 个 step 来进行测试，模拟<strong>多并发步骤，高负载</strong>的场景。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=k>stages</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span>- <span class=k>name</span><span class=p>:</span><span class=w> </span>Build<span class=w>
+</span><span class=w>    </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span>- <span class=k>runScriptConfig</span><span class=p>:</span><span class=w>
+</span><span class=w>          </span><span class=k>image</span><span class=p>:</span><span class=w> </span>golang<span class=p>:</span><span class=m>1.14</span><span class=w>
+</span><span class=w>          </span><span class=k>shellScript</span><span class=p>:</span><span class=w> </span>|<span class=sd>-
+</span><span class=sd>            go env -w GO111MODULE=on</span><span class=w>
+</span><span class=w>            </span>go<span class=w> </span>env<span class=w> </span>-w<span class=w> </span>GOPROXY=https<span class=p>:</span>//goproxy.cn<span class=p>,</span>direct<span class=w>
+</span><span class=w>            </span>go<span class=w> </span>install<span class=w> </span>github.com/gohugoio/hugo<span class=w>
+</span><span class=w>      </span>...x9...<span class=w>
+</span><span class=w>  </span>- <span class=k>name</span><span class=p>:</span><span class=w> </span>Build2<span class=w>
+</span><span class=w>    </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- <span class=k>runScriptConfig</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span><span class=k>image</span><span class=p>:</span><span class=w> </span>golang<span class=p>:</span><span class=m>1.14</span><span class=w>
+</span><span class=w>        </span><span class=k>shellScript</span><span class=p>:</span><span class=w> </span>|<span class=sd>-
+</span><span class=sd>          go env -w GO111MODULE=on</span><span class=w>
+</span><span class=w>          </span>go<span class=w> </span>env<span class=w> </span>-w<span class=w> </span>GOPROXY=https<span class=p>:</span>//goproxy.cn<span class=p>,</span>direct<span class=w>
+</span><span class=w>          </span>go<span class=w> </span>install<span class=w> </span>github.com/gohugoio/hugo<span class=w>
+</span><span class=w>    </span>...x9...<span class=w>
+</span><span class=w></span><span class=k>timeout</span><span class=p>:</span><span class=w> </span><span class=m>60</span><span class=w>
+</span><span class=w></span><span class=k>notification</span><span class=p>:</span><span class=w> </span>{}<span class=w>
+</span></code></pre></td></tr></table></div></div><h3 id=使用重启-jenkins-的方式复现错误>使用重启 jenkins 的方式复现错误</h3><p>这里使用杀死 jenkins 容器的方式做到让 pod 强制重启：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-shell data-lang=shell>kubectl <span class=nb>exec</span> -it <span class=o>[</span>POD_NAME<span class=o>]</span> -c <span class=o>[</span>CONTAINER_NAME<span class=o>]</span> -- /bin/sh -c <span class=s2>&#34;kill 1&#34;</span>
+</code></pre></td></tr></table></div></div><p>经过多次测试，大部分情况下会报连接不上 jenkins 服务的错误，在第 7 次时出现 <code>"Error step Node not found"</code>，看上去和实际情况不太一样，决定换一种复现方式。</p><h3 id=直接同时触发多个流水线复现错误>直接同时触发多个流水线复现错误</h3><p>直接同时触发多个流水线后，果然多次出现了 <code>"Error step Node not found"</code>，同时 jenkins 服务也没有发生重启，证明 jenkins 服务重启并不是错误出现的必要条件。</p><p>拿到两次典型的流水线执行过程进行分析：</p><h4 id=pipelineexecution-p-wdg7z-24>PipelineExecution: p-wdg7z-24</h4><figure><figcaption><span>p-wdg7z-24.yaml</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span><span class=lnt>94
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>project.cattle.io/v3<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>PipelineExecution<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>annotations</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>lifecycle.cattle.io/create.pipeline-execution-controller_c-vqqlf</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;true&#34;</span><span class=w>
+</span><span class=w>    </span><span class=k>pipeline.project.cattle.io/local-registry-port</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;34153&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>creationTimestamp</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 52: 40Z&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>finalizers</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- clusterscoped.controller.cattle.io/pipeline-execution-controller_c-vqqlf<span class=w>
+</span><span class=w>  </span><span class=k>generation</span><span class=p>:</span><span class=w> </span><span class=m>15</span><span class=w>
+</span><span class=w>  </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>cattle.io/creator</span><span class=p>:</span><span class=w> </span>norman<span class=w>
+</span><span class=w>    </span><span class=k>pipeline.project.cattle.io/finish</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;true&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>p-wdg7z<span class=m>-24</span><span class=w>
+</span><span class=w>  </span><span class=k>namespace</span><span class=p>:</span><span class=w> </span>p-p4ls4<span class=w>
+</span><span class=w>  </span>...<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span>...<span class=w>
+</span><span class=w>  </span><span class=k>pipelineName</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;p-p4ls4:p-wdg7z&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>projectName</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;c-vqqlf:p-p4ls4&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>run</span><span class=p>:</span><span class=w> </span><span class=m>24</span><span class=w>
+</span><span class=w>  </span><span class=k>time</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Wed May 27 11: 05: 24 +0800 2020&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>triggerUserName</span><span class=p>:</span><span class=w> </span>user-765s2<span class=w>
+</span><span class=w>  </span><span class=k>triggeredBy</span><span class=p>:</span><span class=w> </span>user<span class=w>
+</span><span class=w></span><span class=k>status</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>conditions</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- <span class=k>lastUpdateTime</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 52: 46Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>status</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;True&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>type</span><span class=p>:</span><span class=w> </span>Initialized<span class=w>
+</span><span class=w>    </span>- <span class=k>lastUpdateTime</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 53: 26Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>message</span><span class=p>:</span><span class=w> </span>&gt;<span class=sd>-
+</span><span class=sd>        Running on buildpod.pipeline-p-wdg7z-24.1-knwj7-rg94z in</span><span class=w>
+</span><span class=w>        </span>/home/jenkins/agent/workspace/pipeline_p-wdg7z<span class=m>-24</span><span class=w>
+</span><span class=w>      </span><span class=k>status</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;True&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>type</span><span class=p>:</span><span class=w> </span>Provisioned<span class=w>
+</span><span class=w>    </span>- <span class=k>lastUpdateTime</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 57: 21Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>message</span><span class=p>:</span><span class=w> </span>Error<span class=w> </span>step<span class=w> </span>Node<span class=w> </span>not<span class=w> </span>found<span class=w>
+</span><span class=w>      </span><span class=k>reason</span><span class=p>:</span><span class=w> </span>Error<span class=w>
+</span><span class=w>      </span><span class=k>status</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;False&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>type</span><span class=p>:</span><span class=w> </span>Built<span class=w>
+</span><span class=w>  </span><span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 57: 21Z&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>executionState</span><span class=p>:</span><span class=w> </span>Failed<span class=w>
+</span><span class=w>  </span><span class=k>stages</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 19Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 11Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>      </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 19Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 11Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>    </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 21Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>      </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 21Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 21Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 52: 37Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 21Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 21Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 53: 35Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 21Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 53: 53Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 22Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 53: 59Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 22Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 53: 59Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 22Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 54: 01Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 22Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 22Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 54: 07Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 50: 23Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>    </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>      </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>  </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06: 52: 40Z&#34;</span><span class=w>
+</span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-go data-lang=go><span class=kn>package</span> <span class=nx>jenkins</span>
+
+<span class=kd>const</span> <span class=p>(</span>
+  <span class=o>...</span>
+	<span class=nx>JenkinsWFBuildInfoURI</span> <span class=p>=</span> <span class=s>&#34;/job/%s/lastBuild/wfapi&#34;</span>
+	<span class=nx>JenkinsWFNodeInfoURI</span>  <span class=p>=</span> <span class=s>&#34;/job/%s/lastBuild/execution/node/%s/wfapi&#34;</span>
+	<span class=nx>JenkinsWFNodeLogURI</span>   <span class=p>=</span> <span class=s>&#34;/job/%s/lastBuild/execution/node/%s/wfapi/log&#34;</span>
+  <span class=o>...</span>
+<span class=p>)</span>
+</code></pre></td></tr></table></div></div><p>使用代码中使用到的 API<sup id=fnref:5><a href=#fn:5 class=footnote-ref role=doc-noteref>5</a></sup> 请求相关数据。</p><figure><figcaption><span>pipeline_p-wdg7z-24.json</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span><span class=lnt>174
+</span><span class=lnt>175
+</span><span class=lnt>176
+</span><span class=lnt>177
+</span><span class=lnt>178
+</span><span class=lnt>179
+</span><span class=lnt>180
+</span><span class=lnt>181
+</span><span class=lnt>182
+</span><span class=lnt>183
+</span><span class=lnt>184
+</span><span class=lnt>185
+</span><span class=lnt>186
+</span><span class=lnt>187
+</span><span class=lnt>188
+</span><span class=lnt>189
+</span><span class=lnt>190
+</span><span class=lnt>191
+</span><span class=lnt>192
+</span><span class=lnt>193
+</span><span class=lnt>194
+</span><span class=lnt>195
+</span><span class=lnt>196
+</span><span class=lnt>197
+</span><span class=lnt>198
+</span><span class=lnt>199
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-json data-lang=json><span class=p>{</span>
+    <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+        <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+            <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/wfapi/describe&#34;</span>
+        <span class=p>}</span>
+    <span class=p>},</span>
+    <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;1&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;#1&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;ABORTED&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994179194</span><span class=p>,</span>
+    <span class=nt>&#34;endTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994452442</span><span class=p>,</span>
+    <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>273248</span><span class=p>,</span>
+    <span class=nt>&#34;queueDurationMillis&#34;</span><span class=p>:</span> <span class=mi>31</span><span class=p>,</span>
+    <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span><span class=p>,</span>
+    <span class=nt>&#34;stages&#34;</span><span class=p>:</span> <span class=p>[</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/12/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;12&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;Clone&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994211115</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>635</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/16/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;16&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-0-0&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994211750</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>7551</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/29/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;29&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;Build&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994219853</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>1165</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/51/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;51&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-0&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994221018</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>224881</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/53/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;53&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-1&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994221316</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>135982</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/55/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;55&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-2&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994221518</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>226629</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/57/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;57&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-3&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994221719</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>194181</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/59/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;59&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-4&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994222125</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>211258</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/61/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;61&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-5&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994222350</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>217134</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/63/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;63&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-6&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994222546</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>217270</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/65/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;65&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-7&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994222746</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>218266</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/67/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;67&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-8&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994222931</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>222563</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-24/lastBuild/execution/node/69/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;69&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-9&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994223102</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>224275</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>}</span>
+    <span class=p>]</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><h4 id=pipelineexecution-p-wdg7z-25>PipelineExecution: p-wdg7z-25</h4><figure><figcaption><span>p-wdg7z-25.yaml</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>project.cattle.io/v3<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>PipelineExecution<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>annotations</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>lifecycle.cattle.io/create.pipeline-execution-controller_c-vqqlf</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;true&#34;</span><span class=w>
+</span><span class=w>    </span><span class=k>pipeline.project.cattle.io/local-registry-port</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;34153&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>creationTimestamp</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:52:46Z&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>finalizers</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- clusterscoped.controller.cattle.io/pipeline-execution-controller_c-vqqlf<span class=w>
+</span><span class=w>  </span><span class=k>generation</span><span class=p>:</span><span class=w> </span><span class=m>13</span><span class=w>
+</span><span class=w>  </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>cattle.io/creator</span><span class=p>:</span><span class=w> </span>norman<span class=w>
+</span><span class=w>    </span><span class=k>pipeline.project.cattle.io/finish</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;true&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>p-wdg7z<span class=m>-25</span><span class=w>
+</span><span class=w>  </span><span class=k>namespace</span><span class=p>:</span><span class=w> </span>p-p4ls4<span class=w>
+</span><span class=w>  </span>...<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span>...<span class=w>
+</span><span class=w>  </span><span class=k>pipelineName</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;p-p4ls4:p-wdg7z&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>projectName</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;c-vqqlf:p-p4ls4&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>run</span><span class=p>:</span><span class=w> </span><span class=m>25</span><span class=w>
+</span><span class=w>  </span><span class=k>time</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Wed May 27 11:05:24 +0800 2020&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>triggerUserName</span><span class=p>:</span><span class=w> </span>user-765s2<span class=w>
+</span><span class=w>  </span><span class=k>triggeredBy</span><span class=p>:</span><span class=w> </span>user<span class=w>
+</span><span class=w></span><span class=k>status</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>conditions</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- <span class=k>lastUpdateTime</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:52:51Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>status</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;True&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>type</span><span class=p>:</span><span class=w> </span>Initialized<span class=w>
+</span><span class=w>    </span>- <span class=k>lastUpdateTime</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:53:37Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>message</span><span class=p>:</span><span class=w> </span>&gt;<span class=sd>-
+</span><span class=sd>        Running on buildpod.pipeline-p-wdg7z-25.1-zn8f6-b9510 in</span><span class=w>
+</span><span class=w>        </span>/home/jenkins/agent/workspace/pipeline_p-wdg7z<span class=m>-25</span><span class=w>
+</span><span class=w>      </span><span class=k>status</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;True&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>type</span><span class=p>:</span><span class=w> </span>Provisioned<span class=w>
+</span><span class=w>    </span>- <span class=k>lastUpdateTime</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:54:22Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>message</span><span class=p>:</span><span class=w> </span>Error<span class=w> </span>step<span class=w> </span>Node<span class=w> </span>not<span class=w> </span>found<span class=w>
+</span><span class=w>      </span><span class=k>reason</span><span class=p>:</span><span class=w> </span>Error<span class=w>
+</span><span class=w>      </span><span class=k>status</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;False&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>type</span><span class=p>:</span><span class=w> </span>Built<span class=w>
+</span><span class=w>  </span><span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:54:22Z&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>executionState</span><span class=p>:</span><span class=w> </span>Failed<span class=w>
+</span><span class=w>  </span><span class=k>stages</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:32Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:23Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>      </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:32Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:23Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>    </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:47Z&#34;</span><span class=w>
+</span><span class=w>      </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>      </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>ended</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:51:00Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:46Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Success<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:47Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:49Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:51Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:52Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:53Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:54Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:56Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:50:57Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>        </span>- <span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:51:00Z&#34;</span><span class=w>
+</span><span class=w>          </span><span class=k>state</span><span class=p>:</span><span class=w> </span>Building<span class=w>
+</span><span class=w>    </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>      </span><span class=k>steps</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>        </span>- <span class=k>state</span><span class=p>:</span><span class=w> </span>Waiting<span class=w>
+</span><span class=w>  </span><span class=k>started</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2020-06-01T06:52:46Z&#34;</span><span class=w>
+</span></code></pre></td></tr></table></div></div><figure><figcaption><span>pipeline_p-wdg7z-25.json</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span><span class=lnt>174
+</span><span class=lnt>175
+</span><span class=lnt>176
+</span><span class=lnt>177
+</span><span class=lnt>178
+</span><span class=lnt>179
+</span><span class=lnt>180
+</span><span class=lnt>181
+</span><span class=lnt>182
+</span><span class=lnt>183
+</span><span class=lnt>184
+</span><span class=lnt>185
+</span><span class=lnt>186
+</span><span class=lnt>187
+</span><span class=lnt>188
+</span><span class=lnt>189
+</span><span class=lnt>190
+</span><span class=lnt>191
+</span><span class=lnt>192
+</span><span class=lnt>193
+</span><span class=lnt>194
+</span><span class=lnt>195
+</span><span class=lnt>196
+</span><span class=lnt>197
+</span><span class=lnt>198
+</span><span class=lnt>199
+</span><span class=lnt>200
+</span><span class=lnt>201
+</span><span class=lnt>202
+</span><span class=lnt>203
+</span><span class=lnt>204
+</span><span class=lnt>205
+</span><span class=lnt>206
+</span><span class=lnt>207
+</span><span class=lnt>208
+</span><span class=lnt>209
+</span><span class=lnt>210
+</span><span class=lnt>211
+</span><span class=lnt>212
+</span><span class=lnt>213
+</span><span class=lnt>214
+</span><span class=lnt>215
+</span><span class=lnt>216
+</span><span class=lnt>217
+</span><span class=lnt>218
+</span><span class=lnt>219
+</span><span class=lnt>220
+</span><span class=lnt>221
+</span><span class=lnt>222
+</span><span class=lnt>223
+</span><span class=lnt>224
+</span><span class=lnt>225
+</span><span class=lnt>226
+</span><span class=lnt>227
+</span><span class=lnt>228
+</span><span class=lnt>229
+</span><span class=lnt>230
+</span><span class=lnt>231
+</span><span class=lnt>232
+</span><span class=lnt>233
+</span><span class=lnt>234
+</span><span class=lnt>235
+</span><span class=lnt>236
+</span><span class=lnt>237
+</span><span class=lnt>238
+</span><span class=lnt>239
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-json data-lang=json><span class=p>{</span>
+    <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+        <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+            <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/wfapi/describe&#34;</span>
+        <span class=p>}</span>
+    <span class=p>},</span>
+    <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;1&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;#1&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994187894</span><span class=p>,</span>
+    <span class=nt>&#34;endTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994442120</span><span class=p>,</span>
+    <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>254226</span><span class=p>,</span>
+    <span class=nt>&#34;queueDurationMillis&#34;</span><span class=p>:</span> <span class=mi>32</span><span class=p>,</span>
+    <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span><span class=p>,</span>
+    <span class=nt>&#34;stages&#34;</span><span class=p>:</span> <span class=p>[</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/12/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;12&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;Clone&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994222893</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>397</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/16/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;16&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-0-0&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994223290</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>9534</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/29/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;29&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;Build&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;SUCCESS&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994238126</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>8389</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/51/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;51&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-0&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994246515</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>144888</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/53/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;53&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-1&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994247864</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>144681</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/55/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;55&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-2&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994249469</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>143731</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/57/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;57&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-3&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994251101</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>143418</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/59/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;59&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-4&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994252280</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>106961</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/61/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;61&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-5&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994253745</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>106400</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/63/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;63&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-6&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994254835</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>108428</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/65/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;65&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-7&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994256264</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>112089</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/67/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;67&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-8&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994257758</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>112765</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>},</span>
+        <span class=p>{</span>
+            <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+                    <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/69/wfapi/describe&#34;</span>
+                <span class=p>}</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;69&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-9&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+            <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+                <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+                <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+            <span class=p>},</span>
+            <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994260226</span><span class=p>,</span>
+            <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>111112</span><span class=p>,</span>
+            <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span>
+        <span class=p>}</span>
+    <span class=p>]</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><figure><figcaption><span>pipeline_p-wdg7z-25_step-1-4.json</span></figcaption></figure><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-json data-lang=json><span class=p>{</span>
+    <span class=nt>&#34;_links&#34;</span><span class=p>:</span> <span class=p>{</span>
+        <span class=nt>&#34;self&#34;</span><span class=p>:</span> <span class=p>{</span>
+            <span class=nt>&#34;href&#34;</span><span class=p>:</span> <span class=s2>&#34;/job/pipeline_p-wdg7z-25/lastBuild/execution/node/59/wfapi/describe&#34;</span>
+        <span class=p>}</span>
+    <span class=p>},</span>
+    <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;59&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;step-1-4&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;execNode&#34;</span><span class=p>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;FAILED&#34;</span><span class=p>,</span>
+    <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=p>{</span>
+        <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=s2>&#34;Required context class hudson.FilePath is missing\nPerhaps you forgot to surround the code with a step that provides this, such as: node&#34;</span><span class=p>,</span>
+        <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;org.jenkinsci.plugins.workflow.steps.MissingContextVariableException&#34;</span>
+    <span class=p>},</span>
+    <span class=nt>&#34;startTimeMillis&#34;</span><span class=p>:</span> <span class=mi>1590994252280</span><span class=p>,</span>
+    <span class=nt>&#34;durationMillis&#34;</span><span class=p>:</span> <span class=mi>106961</span><span class=p>,</span>
+    <span class=nt>&#34;pauseDurationMillis&#34;</span><span class=p>:</span> <span class=mi>0</span><span class=p>,</span>
+    <span class=nt>&#34;stageFlowNodes&#34;</span><span class=p>:</span> <span class=p>[]</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>从这两个测试用例发现了些什么呢？</p><ol><li><p><code>pipeline_p-wdg7z-25_step-1-4</code> 的 <code>stageFlowNodes</code> 为空，会触发 <code>"Error step Node not found"</code>，搜索后找到了一个 Jenkins issue:</p><p><a href=https://issues.jenkins-ci.org/browse/JENKINS-59279 target=_blank rel="noopener noreffer">JENKINS-59279: Required context class hudson.FilePath is missing</a></p><p>也就是说根源问题应该是和 jenkins 在容器环境下执行有关</p></li><li><p><code>p-wdg7z-24</code> jenkins build 记录没有任何报错，但是仍然出现了 <code>"Error step Node not found"</code></p></li><li><p>jenkins 服务没有发生重启</p></li></ol><p>另外，通过多次测试，当两个测试的流水线调度到同一天机器上，后一个几乎一定会失败：</p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-06-02-10-11-34.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-11-34.png, img/2020-06-02-10-11-34.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-11-34.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-11-34.png title=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-11-34.png></p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-06-02-10-13-13.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-13-13.png, img/2020-06-02-10-13-13.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-13-13.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-13-13.png title="流水线运行: #31"></p><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-06-02-10-12-30.png data-srcset="https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-12-30.png, img/2020-06-02-10-12-30.png 1.5x, https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-12-30.png 2x" data-sizes=auto alt=/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/img/2020-06-02-10-12-30.png title="流水线运行: #32"></p><p>在此场景下，jenkins 服务连通性也会有一些问题，通过监控观察，应当是 CPU 负载过高导致服务无响应。同时此时还会有 slave 连接不上 jenkins 导致 buildpod 泄漏的情况。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-text data-lang=text>buildpod.pipeline-p-wdg7z-17.1-mkkqk-cgj16 jnlp Jun 02, 2020 2:03:29 AM org.jenkinsci.remoting.engine.JnlpAgentEndpointResolver waitForReady
+buildpod.pipeline-p-wdg7z-17.1-mkkqk-cgj16 jnlp INFO: Failed to connect to the master. Will try again: java.net.SocketTimeoutException connect timed out
+buildpod.pipeline-p-wdg7z-17.1-mkkqk-cgj16 jnlp Jun 02, 2020 2:03:44 AM org.jenkinsci.remoting.engine.JnlpAgentEndpointResolver waitForReady
+buildpod.pipeline-p-wdg7z-17.1-mkkqk-cgj16 jnlp INFO: Failed to connect to the master. Will try again: java.net.SocketTimeoutException connect timed out
+buildpod.pipeline-p-wdg7z-17.1-mkkqk-cgj16 jnlp Jun 02, 2020 2:03:59 AM org.jenkinsci.remoting.engine.JnlpAgentEndpointResolver waitForReady
+buildpod.pipeline-p-wdg7z-17.1-mkkqk-cgj16 jnlp INFO: Failed to connect to the master. Will try again: java.net.SocketTimeoutException connect timed out
+</code></pre></td></tr></table></div></div><h2 id=总结>总结</h2><p>结合找到的 jenkins issue 来看，根源问题应该是和 jenkins 在容器环境中高负载执行有关，具体原因因为深入到 jenkins 源码只能停留在此了。
+但目前可以通过<strong>添加节点，将流水线并行的步骤拆分成多个阶段</strong>来缓解问题。</p><p>此外 rancher 在流水线这一块的代码，也可以有一些改进：</p><ol><li><code>"Error step Node not found"</code> 错误可以带上 <code>WFnodeID</code> 便于定位问题</li><li><code>"Error step Node not found"</code> 出现时并不代表 jenkins slave 执行失败了，但是流水线会将状态设置为 <code>Failed</code>，而 jenkins slave 仍然会继续执行，可能会有潜在的问题，rancher 在流水线失败时可以也执行清理逻辑<sup id=fnref:6><a href=#fn:6 class=footnote-ref role=doc-noteref>6</a></sup></li><li>buildpod 泄漏的情况需要能被检查和处理</li></ol><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p><a href=https://github.com/rancher/rancher/issues/22478 target=_blank rel="noopener noreffer">Randomly getting the &ldquo;Error step Node not found&rdquo; exception #22478</a> <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p><a href=https://github.com/rancher/jenkins-slave/blob/master/Dockerfile#L37 target=_blank rel="noopener noreffer">rancher/jenkins-slave</a> <a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3 role=doc-endnote><p><a href=https://github.com/jpetazzo/dind target=_blank rel="noopener noreffer">jpetazzo/dind</a> <a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:4 role=doc-endnote><p><a href=https://www.jenkins.io/doc/book/pipeline/#pipeline-syntax-overview target=_blank rel="noopener noreffer">Pipeline syntax overview</a> <a href=#fnref:4 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:5 role=doc-endnote><p><a href=https://github.com/jenkinsci/pipeline-stage-view-plugin/blob/master/rest-api/README.md target=_blank rel="noopener noreffer">Pipeline REST API Plugin</a> <a href=#fnref:5 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:6 role=doc-endnote><p><a href=https://github.com/rancher/rancher/blob/release/v2.3/pkg/controllers/user/pipeline/controller/pipelineexecution/pipelineexecution.go#L198>https://github.com/rancher/rancher/blob/release/v2.3/pkg/controllers/user/pipeline/controller/pipelineexecution/pipelineexecution.go#L198</a> <a href=#fnref:6 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2020-05-26</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ data-title="Rancher 流水线随机失败问题" data-hashtags=Rancher,Jenkins><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ data-hashtag=Rancher><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ data-title="Rancher 流水线随机失败问题" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ data-title="Rancher 流水线随机失败问题"><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ data-title="Rancher 流水线随机失败问题"><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ data-title="Rancher 流水线随机失败问题" data-description><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ data-title="Rancher 流水线随机失败问题" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ data-title="Rancher 流水线随机失败问题"><i class="fab fa-evernote fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=https://www.elonzh.com/tags/rancher/>Rancher</a>,&nbsp;<a href=https://www.elonzh.com/tags/jenkins/>Jenkins</a></section><section><span><a href=javascript:void(0); onclick=window.history.back();>返回</a></span>&nbsp;|&nbsp;<span><a href=https://www.elonzh.com/>主页</a></span></section></div><div class=post-nav><a href=https://www.elonzh.com/grpc-%E5%9C%A8-kubernetes-%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/ class=prev rel=prev title="gRPC 在 Kubernetes 中的负载均衡"><i class="fas fa-angle-left fa-fw"></i>gRPC 在 Kubernetes 中的负载均衡</a>
+<a href=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/ class=next rel=next title="Rancher 监控面板出现 CPU 利用率出现负数">Rancher 监控面板出现 CPU 利用率出现负数<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=disqus_thread class=comment></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://disqus.com/?ref_noscript>Disqus</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.68.3">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i>LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2019 - 2020</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://www.elonzh.com/ target=_blank>Elon Zhou</a></span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i></a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><link rel=stylesheet href=https://www.elonzh.com/lib/katex/katex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/katex/copy-tex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=https://elonzh.disqus.com/embed.js defer></script><script type=text/javascript src=https://www.elonzh.com/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/sharer/sharer.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/katex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/auto-render.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/copy-tex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/mhchem.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":30},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","lunrIndexURL":"/index.json","lunrLanguageCode":"zh","lunrSegmentitURL":"/lib/lunr/lunr.segmentit.js","maxResultLength":10,"noResultsFound":"没有找到结果","snippetLength":50,"type":"lunr"}};</script><script type=text/javascript src=https://www.elonzh.com/js/theme.min.js></script></body></html>

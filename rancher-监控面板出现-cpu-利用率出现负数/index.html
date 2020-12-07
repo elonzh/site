@@ -1,0 +1,388 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Rancher 监控面板出现 CPU 利用率出现负数 - Life Log</title><meta name=Description content="这是我的全新 Hugo 网站"><meta property="og:title" content="Rancher 监控面板出现 CPU 利用率出现负数"><meta property="og:description" content="Rancher 监控面板出现 CPU 利用率出现负数 Rancher 监控面板是怎么工作的 Rancher 定义了三种 CRD 用于支持监控面板的展示： clustermonitorgraphs.management.cattle.io projectmonitorgraphs.management.cattle.io monitormetrics.management.cattle.io 其中前两个是类似的，只是工作的上下文不太一样"><meta property="og:type" content="article"><meta property="og:url" content="https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/"><meta property="og:image" content="https://www.elonzh.com/logo.png"><meta property="article:published_time" content="2020-06-11T18:32:15+08:00"><meta property="article:modified_time" content="2020-06-11T18:32:15+08:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://www.elonzh.com/logo.png"><meta name=twitter:title content="Rancher 监控面板出现 CPU 利用率出现负数"><meta name=twitter:description content="Rancher 监控面板出现 CPU 利用率出现负数 Rancher 监控面板是怎么工作的 Rancher 定义了三种 CRD 用于支持监控面板的展示： clustermonitorgraphs.management.cattle.io projectmonitorgraphs.management.cattle.io monitormetrics.management.cattle.io 其中前两个是类似的，只是工作的上下文不太一样"><meta name=application-name content="LoveIt"><meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=https://www.elonzh.com/favicon.ico><link rel=icon type=image/png sizes=32x32 href=https://www.elonzh.com/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=https://www.elonzh.com/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=https://www.elonzh.com/apple-touch-icon.png><link rel=mask-icon href=https://www.elonzh.com/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=https://www.elonzh.com/site.webmanifest><link rel=canonical href=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/><link rel=prev href=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/><link rel=stylesheet href=https://www.elonzh.com/lib/normalize/normalize.min.css><link rel=stylesheet href=https://www.elonzh.com/css/style.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/fontawesome-free/all.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Rancher 监控面板出现 CPU 利用率出现负数","inLanguage":"zh-cn","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/www.elonzh.com\/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0\/"},"genre":"posts","keywords":"Rancher, monitor, Prometheus, node_exporter","wordcount":1996,"url":"https:\/\/www.elonzh.com\/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0\/","datePublished":"2020-06-11T18:32:15+08:00","dateModified":"2020-06-11T18:32:15+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Elon Zhou"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':('auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark'))&&document.body.setAttribute('theme','dark');</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu><div class=menu-inner><a class=menu-item href=https://www.elonzh.com/>首页 </a><a class=menu-item href=https://www.elonzh.com/posts/>文章 </a><a class=menu-item href=https://www.elonzh.com/tags/>标签 </a><a class=menu-item href=https://www.elonzh.com/categories/>分类 </a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片 </a><a class=menu-item href=https://www.elonzh.com/about/>关于 </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop><input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin"></i></span></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=https://www.elonzh.com/ title="Life Log"></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索><i class="fas fa-search fa-fw"></i></a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空><i class="fas fa-times-circle fa-fw"></i></a><span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin"></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>取消</a></div><a class=menu-item href=https://www.elonzh.com/>首页</a><a class=menu-item href=https://www.elonzh.com/posts/>文章</a><a class=menu-item href=https://www.elonzh.com/tags/>标签</a><a class=menu-item href=https://www.elonzh.com/categories/>分类</a><a class=menu-item href=https://www.elonzh.com/snippet/>代码片</a><a class=menu-item href=https://www.elonzh.com/about/>关于</a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Rancher 监控面板出现 CPU 利用率出现负数</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://www.elonzh.com/ title=Author rel=author class=author><i class="fas fa-user-circle fa-fw"></i>Elon Zhou</a></span>&nbsp;<span class=post-category>收录于 <a href=https://www.elonzh.com/categories/devops/><i class="far fa-folder fa-fw"></i>devops</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2020-06-11>2020-06-11</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1996 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 4 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#rancher-监控面板出现-cpu-利用率出现负数>Rancher 监控面板出现 CPU 利用率出现负数</a><ul><li><a href=#rancher-监控面板是怎么工作的>Rancher 监控面板是怎么工作的</a></li><li><a href=#cpu-利用率出现负数的原因>CPU 利用率出现负数的原因</a></li></ul></li></ul></nav></div></div><div class=content id=content><h2 id=rancher-监控面板出现-cpu-利用率出现负数>Rancher 监控面板出现 CPU 利用率出现负数</h2><p><img class=lazyload src=https://www.elonzh.com/svg/loading.min.svg data-src=img/2020-06-08-16-45-19.png data-srcset="https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/img/2020-06-08-16-45-19.png, img/2020-06-08-16-45-19.png 1.5x, https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/img/2020-06-08-16-45-19.png 2x" data-sizes=auto alt=/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/img/2020-06-08-16-45-19.png title="Rancher 监控负数指标"></p><h3 id=rancher-监控面板是怎么工作的>Rancher 监控面板是怎么工作的</h3><p>Rancher 定义了三种 CRD 用于支持监控面板的展示：</p><ul><li><code>clustermonitorgraphs.management.cattle.io</code></li><li><code>projectmonitorgraphs.management.cattle.io</code></li><li><code>monitormetrics.management.cattle.io</code></li></ul><p>其中前两个是类似的，只是工作的上下文不太一样，用于定义监控图表需要的监控指标，<code>monitormetrics.management.cattle.io</code> 存储了监控指标对应的 Prometheus 查询表达式。</p><p>以集群监控图表为例，API 为：<code>/v3/clustermonitorgraphs?action=query</code>，相关代码在：<code>pkg/api/customization/monitor/cluster_graph_action.go#ClusterGraphHandler.QuerySeriesAction</code>。</p><p>简单来说，基本逻辑就是</p><ol><li>根据请求获取相关的 <code>clustermonitorgraphs.management.cattle.io</code></li><li>根据指标名称拿到 <code>monitormetrics.management.cattle.io</code>，提取出查询表达式</li><li>根据请求参数和查询表达式得到真正的查询语句</li><li>请求 Prometheus 得到相关数据</li><li>转换成 API 响应并返回数据</li></ol><h3 id=cpu-利用率出现负数的原因>CPU 利用率出现负数的原因</h3><p>这里我们看一下出现问题的 CPU 利用率图表的相关对象。</p><p>API 请求：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-json data-lang=json><span class=p>{</span>
+	<span class=nt>&#34;filters&#34;</span><span class=p>:{</span>
+		<span class=nt>&#34;resourceType&#34;</span><span class=p>:</span><span class=s2>&#34;node&#34;</span><span class=p>,</span>
+		<span class=nt>&#34;clusterId&#34;</span><span class=p>:</span><span class=s2>&#34;c-64wdm&#34;</span>
+	<span class=p>},</span>
+	<span class=nt>&#34;metricParams&#34;</span><span class=p>:{</span>
+		<span class=nt>&#34;instance&#34;</span><span class=p>:</span><span class=s2>&#34;c-64wdm:machine-jf48v&#34;</span>
+	<span class=p>},</span>
+	<span class=nt>&#34;interval&#34;</span><span class=p>:</span><span class=s2>&#34;60s&#34;</span><span class=p>,</span>
+	<span class=nt>&#34;isDetails&#34;</span><span class=p>:</span><span class=kc>false</span><span class=p>,</span>
+	<span class=nt>&#34;from&#34;</span><span class=p>:</span><span class=s2>&#34;now-1h&#34;</span><span class=p>,</span>
+	<span class=nt>&#34;to&#34;</span><span class=p>:</span><span class=s2>&#34;now&#34;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-shell data-lang=shell>➜ k get -n c-64wdm clustermonitorgraphs.management.cattle.io cluster-cpu-usage -o yaml
+</code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>management.cattle.io/v3<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>ClusterMonitorGraph<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>app</span><span class=p>:</span><span class=w> </span>metric-expression<span class=w>
+</span><span class=w>    </span><span class=k>cattle.io/creator</span><span class=p>:</span><span class=w> </span>norman<span class=w>
+</span><span class=w>    </span><span class=k>component</span><span class=p>:</span><span class=w> </span>cluster<span class=w>
+</span><span class=w>    </span><span class=k>level</span><span class=p>:</span><span class=w> </span>cluster<span class=w>
+</span><span class=w>    </span><span class=k>source</span><span class=p>:</span><span class=w> </span>rancher-monitoring<span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>cluster-cpu-usage<span class=w>
+</span><span class=w>  </span><span class=k>namespace</span><span class=p>:</span><span class=w> </span>c-64wdm<span class=w>
+</span><span class=w>  </span>...<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>clusterName</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;&#34;</span><span class=w>
+</span><span class=w>  </span><span class=k>detailsMetricsSelector</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>component</span><span class=p>:</span><span class=w> </span>cluster<span class=w>
+</span><span class=w>    </span><span class=k>details</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;true&#34;</span><span class=w>
+</span><span class=w>    </span><span class=k>metric</span><span class=p>:</span><span class=w> </span>cpu-usage-seconds-sum-rate<span class=w>
+</span><span class=w>  </span><span class=k>metricsSelector</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>component</span><span class=p>:</span><span class=w> </span>cluster<span class=w>
+</span><span class=w>    </span><span class=k>details</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;false&#34;</span><span class=w>
+</span><span class=w>    </span><span class=k>metric</span><span class=p>:</span><span class=w> </span>cpu-usage-seconds-sum-rate<span class=w>
+</span><span class=w>  </span><span class=k>priority</span><span class=p>:</span><span class=w> </span><span class=m>100</span><span class=w>
+</span><span class=w>  </span><span class=k>resourceType</span><span class=p>:</span><span class=w> </span>cluster<span class=w>
+</span><span class=w>  </span><span class=k>yAxis</span><span class=p>:</span><span class=w>
+</span><span class=w>	</span><span class=k>unit</span><span class=p>:</span><span class=w> </span>percent<span class=w>
+</span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-shell data-lang=shell>➜ k get -n c-64wdm monitormetrics.management.cattle.io<span class=p>|</span> grep cpu-usage-seconds-sum-rate
+cluster-cpu-usage-seconds-sum-rate                               2d18h
+cluster-cpu-usage-seconds-sum-rate-details                       2d18h
+cpu-usage-seconds-sum-rate-details                               2d18h
+node-cpu-usage-seconds-sum-rate                                  2d18h
+node-cpu-usage-seconds-sum-rate-details                          2d18h
+pod-cpu-usage-seconds-sum-rate                                   2d18h
+pod-cpu-usage-seconds-sum-rate-details                           2d18h
+workload-cpu-usage-seconds-sum-rate                              2d18h
+workload-cpu-usage-seconds-sum-rate-details                      2d18h
+</code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-shell data-lang=shell>➜ k get -n c-64wdm monitormetrics.management.cattle.io node-cpu-usage-seconds-sum-rate -o yaml
+</code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=k>apiVersion</span><span class=p>:</span><span class=w> </span>management.cattle.io/v3<span class=w>
+</span><span class=w></span><span class=k>kind</span><span class=p>:</span><span class=w> </span>MonitorMetric<span class=w>
+</span><span class=w></span><span class=k>metadata</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>labels</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>app</span><span class=p>:</span><span class=w> </span>metric-expression<span class=w>
+</span><span class=w>    </span><span class=k>cattle.io/creator</span><span class=p>:</span><span class=w> </span>norman<span class=w>
+</span><span class=w>    </span><span class=k>component</span><span class=p>:</span><span class=w> </span>node<span class=w>
+</span><span class=w>    </span><span class=k>details</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;false&#34;</span><span class=w>
+</span><span class=w>    </span><span class=k>level</span><span class=p>:</span><span class=w> </span>cluster<span class=w>
+</span><span class=w>    </span><span class=k>metric</span><span class=p>:</span><span class=w> </span>cpu-usage-seconds-sum-rate<span class=w>
+</span><span class=w>    </span><span class=k>source</span><span class=p>:</span><span class=w> </span>rancher-monitoring<span class=w>
+</span><span class=w>  </span><span class=k>name</span><span class=p>:</span><span class=w> </span>node-cpu-usage-seconds-sum-rate<span class=w>
+</span><span class=w>  </span><span class=k>namespace</span><span class=p>:</span><span class=w> </span>c-64wdm<span class=w>
+</span><span class=w>  </span>...<span class=w>
+</span><span class=w></span><span class=k>spec</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>description</span><span class=p>:</span><span class=w> </span>node<span class=w> </span>cpu<span class=w> </span>usage<span class=w> </span>seconds<span class=w> </span>sum<span class=w> </span>rate<span class=w>
+</span><span class=w>  </span><span class=k>expression</span><span class=p>:</span><span class=w> </span><span class=m>1</span><span class=w> </span>- (avg(irate(node_cpu_seconds_total{mode=<span class=s2>&#34;idle&#34;</span><span class=p>,</span><span class=w> </span>instance=~<span class=s2>&#34;$instance&#34;</span>}<span class=p>[</span>5m<span class=p>]</span>))<span class=w>
+</span><span class=w>    </span>by<span class=w> </span>(instance))<span class=w>
+</span><span class=w>  </span><span class=k>legendFormat</span><span class=p>:</span><span class=w> </span>CPU<span class=w>
+</span></code></pre></td></tr></table></div></div><p>可以看到 CPU 利用率最终的查询语句是 <code>1 - (avg(irate(node_cpu_seconds_total{mode="idle", instance=~"$instance"}[5m])) by (instance))</code>，而这个查询表达式确实是可能产生负数值的，具体原因跟数据采样和 <code>irate</code> 函数有关。</p><p>首先，监控指标是 Prometheus 通过定时执行任务去数据源抓取的，node_exporter 的指标是不返回时间戳的，此时<strong>时间戳是抓取任务开始前取当前时间</strong>：</p><blockquote><p><a href=https://github.com/prometheus/prometheus/blob/f9d21f10ecd2a343a381044f131ea4e46381ce09/scrape/scrape.go#L910 target=_blank rel="noopener noreffer">scrape/scrape.go#L910</a></p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=p>(</span><span class=nx>sl</span> <span class=o>*</span><span class=nx>scrapeLoop</span><span class=p>)</span> <span class=nf>run</span><span class=p>(</span><span class=nx>interval</span><span class=p>,</span> <span class=nx>timeout</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>,</span> <span class=nx>errc</span> <span class=kd>chan</span><span class=o>&lt;-</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+	<span class=o>...</span>
+<span class=nx>mainLoop</span><span class=p>:</span>
+	<span class=k>for</span> <span class=p>{</span>
+		<span class=o>...</span>
+		<span class=kd>var</span> <span class=p>(</span>
+			<span class=c1>// 默认取任务开始时间为时间戳
+</span><span class=c1></span>			<span class=nx>start</span>             <span class=p>=</span> <span class=nx>time</span><span class=p>.</span><span class=nf>Now</span><span class=p>()</span>
+			<span class=c1>// 抓取任务可以配置超时时间
+</span><span class=c1></span>			<span class=nx>scrapeCtx</span><span class=p>,</span> <span class=nx>cancel</span> <span class=p>=</span> <span class=nx>context</span><span class=p>.</span><span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>sl</span><span class=p>.</span><span class=nx>ctx</span><span class=p>,</span> <span class=nx>timeout</span><span class=p>)</span>
+		<span class=p>)</span>
+		<span class=o>...</span>
+		<span class=c1>// 抓取数据
+</span><span class=c1></span>		<span class=nx>contentType</span><span class=p>,</span> <span class=nx>scrapeErr</span> <span class=o>:=</span> <span class=nx>sl</span><span class=p>.</span><span class=nx>scraper</span><span class=p>.</span><span class=nf>scrape</span><span class=p>(</span><span class=nx>scrapeCtx</span><span class=p>,</span> <span class=nx>buf</span><span class=p>)</span>
+		<span class=nf>cancel</span><span class=p>()</span>
+		<span class=o>...</span>
+		<span class=c1>// 写入数据
+</span><span class=c1></span>		<span class=nx>total</span><span class=p>,</span> <span class=nx>added</span><span class=p>,</span> <span class=nx>seriesAdded</span><span class=p>,</span> <span class=nx>appErr</span> <span class=o>:=</span> <span class=nx>sl</span><span class=p>.</span><span class=nb>append</span><span class=p>(</span><span class=nx>b</span><span class=p>,</span> <span class=nx>contentType</span><span class=p>,</span> <span class=nx>start</span><span class=p>)</span>
+		<span class=o>...</span>
+		<span class=k>select</span> <span class=p>{</span>
+		<span class=k>case</span> <span class=o>&lt;-</span><span class=nx>sl</span><span class=p>.</span><span class=nx>parentCtx</span><span class=p>.</span><span class=nf>Done</span><span class=p>():</span>
+			<span class=nb>close</span><span class=p>(</span><span class=nx>sl</span><span class=p>.</span><span class=nx>stopped</span><span class=p>)</span>
+			<span class=k>return</span>
+		<span class=k>case</span> <span class=o>&lt;-</span><span class=nx>sl</span><span class=p>.</span><span class=nx>ctx</span><span class=p>.</span><span class=nf>Done</span><span class=p>():</span>
+			<span class=k>break</span> <span class=nx>mainLoop</span>
+		<span class=c1>// 当定时器触发时继续执行抓取任务
+</span><span class=c1></span>		<span class=k>case</span> <span class=o>&lt;-</span><span class=nx>ticker</span><span class=p>.</span><span class=nx>C</span><span class=p>:</span>
+		<span class=p>}</span>
+	<span class=p>}</span>
+	<span class=o>...</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><blockquote><p><a href=https://github.com/prometheus/prometheus/blob/f9d21f10ecd2a343a381044f131ea4e46381ce09/scrape/scrape.go#L1077 target=_blank rel="noopener noreffer">scrape/scrape.go#L1077</a></p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=p>(</span><span class=nx>sl</span> <span class=o>*</span><span class=nx>scrapeLoop</span><span class=p>)</span> <span class=nb>append</span><span class=p>(</span><span class=nx>b</span> <span class=p>[]</span><span class=kt>byte</span><span class=p>,</span> <span class=nx>contentType</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>ts</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Time</span><span class=p>)</span> <span class=p>(</span><span class=nx>total</span><span class=p>,</span> <span class=nx>added</span><span class=p>,</span> <span class=nx>seriesAdded</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+	<span class=kd>var</span> <span class=p>(</span>
+		<span class=nx>app</span>            <span class=p>=</span> <span class=nx>sl</span><span class=p>.</span><span class=nf>appender</span><span class=p>()</span>
+		<span class=nx>p</span>              <span class=p>=</span> <span class=nx>textparse</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=nx>b</span><span class=p>,</span> <span class=nx>contentType</span><span class=p>)</span>
+		<span class=nx>defTime</span>        <span class=p>=</span> <span class=nx>timestamp</span><span class=p>.</span><span class=nf>FromTime</span><span class=p>(</span><span class=nx>ts</span><span class=p>)</span>
+		<span class=nx>appErrs</span>        <span class=p>=</span> <span class=nx>appendErrors</span><span class=p>{}</span>
+		<span class=nx>sampleLimitErr</span> <span class=kt>error</span>
+	<span class=p>)</span>
+	<span class=o>...</span>
+<span class=nx>loop</span><span class=p>:</span>
+	<span class=k>for</span> <span class=p>{</span>
+		<span class=kd>var</span> <span class=p>(</span>
+			<span class=nx>et</span>          <span class=nx>textparse</span><span class=p>.</span><span class=nx>Entry</span>
+			<span class=nx>sampleAdded</span> <span class=kt>bool</span>
+		<span class=p>)</span>
+		<span class=c1>// 遍历数据
+</span><span class=c1></span>		<span class=k>if</span> <span class=nx>et</span><span class=p>,</span> <span class=nx>err</span> <span class=p>=</span> <span class=nx>p</span><span class=p>.</span><span class=nf>Next</span><span class=p>();</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+			<span class=k>if</span> <span class=nx>err</span> <span class=o>==</span> <span class=nx>io</span><span class=p>.</span><span class=nx>EOF</span> <span class=p>{</span>
+				<span class=nx>err</span> <span class=p>=</span> <span class=kc>nil</span>
+			<span class=p>}</span>
+			<span class=k>break</span>
+		<span class=p>}</span>
+		<span class=o>...</span>
+		<span class=nx>total</span><span class=o>++</span>
+
+		<span class=nx>t</span> <span class=o>:=</span> <span class=nx>defTime</span>
+		<span class=nx>met</span><span class=p>,</span> <span class=nx>tp</span><span class=p>,</span> <span class=nx>v</span> <span class=o>:=</span> <span class=nx>p</span><span class=p>.</span><span class=nf>Series</span><span class=p>()</span>
+		<span class=k>if</span> <span class=p>!</span><span class=nx>sl</span><span class=p>.</span><span class=nx>honorTimestamps</span> <span class=p>{</span>
+			<span class=nx>tp</span> <span class=p>=</span> <span class=kc>nil</span>
+		<span class=p>}</span>
+		<span class=c1>// 如果使用数据源时间戳
+</span><span class=c1></span>		<span class=k>if</span> <span class=nx>tp</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+			<span class=nx>t</span> <span class=p>=</span> <span class=o>*</span><span class=nx>tp</span>
+		<span class=p>}</span>
+		<span class=o>...</span>
+		<span class=nx>ce</span><span class=p>,</span> <span class=nx>ok</span> <span class=o>:=</span> <span class=nx>sl</span><span class=p>.</span><span class=nx>cache</span><span class=p>.</span><span class=nf>get</span><span class=p>(</span><span class=nf>yoloString</span><span class=p>(</span><span class=nx>met</span><span class=p>))</span>
+		<span class=k>if</span> <span class=nx>ok</span> <span class=p>{</span>
+			<span class=c1>// 写入数据
+</span><span class=c1></span>			<span class=nx>err</span> <span class=p>=</span> <span class=nx>app</span><span class=p>.</span><span class=nf>AddFast</span><span class=p>(</span><span class=nx>ce</span><span class=p>.</span><span class=nx>ref</span><span class=p>,</span> <span class=nx>t</span><span class=p>,</span> <span class=nx>v</span><span class=p>)</span>
+			<span class=o>...</span>
+		<span class=p>}</span>
+		<span class=o>...</span>
+		<span class=nx>added</span><span class=o>++</span>
+
+	<span class=p>}</span>
+	<span class=o>...</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p><code>irate</code> 函数是通过区间向量中最后两个样本数据来计算区间向量的增长速率：</p><blockquote><p><a href=https://github.com/prometheus/prometheus/blob/5bb7f00d00ba2d73488630851b352974511c233a/promql/functions.go#L149 target=_blank rel="noopener noreffer">promql/functions.go#L149</a></p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-go data-lang=go><span class=c1>// === irate(node parser.ValueTypeMatrix) Vector ===
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>funcIrate</span><span class=p>(</span><span class=nx>vals</span> <span class=p>[]</span><span class=nx>parser</span><span class=p>.</span><span class=nx>Value</span><span class=p>,</span> <span class=nx>args</span> <span class=nx>parser</span><span class=p>.</span><span class=nx>Expressions</span><span class=p>,</span> <span class=nx>enh</span> <span class=o>*</span><span class=nx>EvalNodeHelper</span><span class=p>)</span> <span class=nx>Vector</span> <span class=p>{</span>
+	<span class=k>return</span> <span class=nf>instantValue</span><span class=p>(</span><span class=nx>vals</span><span class=p>,</span> <span class=nx>enh</span><span class=p>.</span><span class=nx>out</span><span class=p>,</span> <span class=kc>true</span><span class=p>)</span>
+<span class=p>}</span>
+<span class=o>...</span>
+<span class=kd>func</span> <span class=nf>instantValue</span><span class=p>(</span><span class=nx>vals</span> <span class=p>[]</span><span class=nx>parser</span><span class=p>.</span><span class=nx>Value</span><span class=p>,</span> <span class=nx>out</span> <span class=nx>Vector</span><span class=p>,</span> <span class=nx>isRate</span> <span class=kt>bool</span><span class=p>)</span> <span class=nx>Vector</span> <span class=p>{</span>
+	<span class=nx>samples</span> <span class=o>:=</span> <span class=nx>vals</span><span class=p>[</span><span class=mi>0</span><span class=p>].(</span><span class=nx>Matrix</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+	<span class=c1>// No sense in trying to compute a rate without at least two points. Drop
+</span><span class=c1></span>	<span class=c1>// this Vector element.
+</span><span class=c1></span>	<span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>samples</span><span class=p>.</span><span class=nx>Points</span><span class=p>)</span> <span class=p>&lt;</span> <span class=mi>2</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=nx>out</span>
+	<span class=p>}</span>
+
+	<span class=c1>// 取最后两个指标值
+</span><span class=c1></span>	<span class=nx>lastSample</span> <span class=o>:=</span> <span class=nx>samples</span><span class=p>.</span><span class=nx>Points</span><span class=p>[</span><span class=nb>len</span><span class=p>(</span><span class=nx>samples</span><span class=p>.</span><span class=nx>Points</span><span class=p>)</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span>
+	<span class=nx>previousSample</span> <span class=o>:=</span> <span class=nx>samples</span><span class=p>.</span><span class=nx>Points</span><span class=p>[</span><span class=nb>len</span><span class=p>(</span><span class=nx>samples</span><span class=p>.</span><span class=nx>Points</span><span class=p>)</span><span class=o>-</span><span class=mi>2</span><span class=p>]</span>
+
+	<span class=kd>var</span> <span class=nx>resultValue</span> <span class=kt>float64</span>
+	<span class=k>if</span> <span class=nx>isRate</span> <span class=o>&amp;&amp;</span> <span class=nx>lastSample</span><span class=p>.</span><span class=nx>V</span> <span class=p>&lt;</span> <span class=nx>previousSample</span><span class=p>.</span><span class=nx>V</span> <span class=p>{</span>
+		<span class=c1>// Counter reset.
+</span><span class=c1></span>		<span class=nx>resultValue</span> <span class=p>=</span> <span class=nx>lastSample</span><span class=p>.</span><span class=nx>V</span>
+	<span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+		<span class=c1>// 最后两个指标值之差
+</span><span class=c1></span>		<span class=nx>resultValue</span> <span class=p>=</span> <span class=nx>lastSample</span><span class=p>.</span><span class=nx>V</span> <span class=o>-</span> <span class=nx>previousSample</span><span class=p>.</span><span class=nx>V</span>
+	<span class=p>}</span>
+
+	<span class=nx>sampledInterval</span> <span class=o>:=</span> <span class=nx>lastSample</span><span class=p>.</span><span class=nx>T</span> <span class=o>-</span> <span class=nx>previousSample</span><span class=p>.</span><span class=nx>T</span>
+	<span class=k>if</span> <span class=nx>sampledInterval</span> <span class=o>==</span> <span class=mi>0</span> <span class=p>{</span>
+		<span class=c1>// Avoid dividing by 0.
+</span><span class=c1></span>		<span class=k>return</span> <span class=nx>out</span>
+	<span class=p>}</span>
+
+	<span class=k>if</span> <span class=nx>isRate</span> <span class=p>{</span>
+		<span class=c1>// 结果等于最后两个指标值之差除以时间区间
+</span><span class=c1></span>		<span class=c1>// Convert to per-second.
+</span><span class=c1></span>		<span class=nx>resultValue</span> <span class=o>/=</span> <span class=nb>float64</span><span class=p>(</span><span class=nx>sampledInterval</span><span class=p>)</span> <span class=o>/</span> <span class=mi>1000</span>
+	<span class=p>}</span>
+
+	<span class=k>return</span> <span class=nb>append</span><span class=p>(</span><span class=nx>out</span><span class=p>,</span> <span class=nx>Sample</span><span class=p>{</span>
+		<span class=nx>Point</span><span class=p>:</span> <span class=nx>Point</span><span class=p>{</span><span class=nx>V</span><span class=p>:</span> <span class=nx>resultValue</span><span class=p>},</span>
+	<span class=p>})</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>CPU 空闲时间秒数 <code>node_cpu_seconds_total{mode="idle"}</code> 理论上说不会超过两次抓取时间间隔秒数，但当开始抓取到实际抓取到数据的时间存在明显的延迟时，就会出现增长率大于 100% 的情况。例如：</p><ol><li>时间 T 启动数据抓取任务，立即得到 T 时刻数据 V，即正常写入数据</li><li>时间 T + 5s 再次启动数据抓取任务，但是因为负载等问题造成取数据有延迟，得到 T + 15s 时刻的数据 V + 15 并写入</li></ol><p>此时如果以这两次采样计算瞬时的增长率：</p><p>$$
+irate = \frac{V + 15 - V}{T + 5 - T} = 3
+$$</p><p>CPU 空置率为 300%，那么 CPU 利用率为 <code>(1 - 3) * 100% = -200%</code>。</p><p>不过这个异常场景可能是<strong>充分不必要</strong>的，在网上也找到类似问题<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>，还有说跟在虚拟机中使用 node_exporter 有关<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>，但没有具体细节无法继续深入。</p><p>此外，上面的解释也并不是说使用 <code>irate</code> 函数就是有问题的，官方文档也做了说明，<code>irate</code> 函数更适合快速变化的计数器，而 <code>rate</code> 函数更适合观察长期趋势。查询 CPU 利用率使用 <code>irate</code> 完全是没问题的。</p><blockquote><p>irate should only be used when graphing volatile, fast-moving counters. Use rate for alerts and slow-moving counters, as brief changes in the rate can reset the FOR clause and graphs consisting entirely of rare spikes are hard to read.</p></blockquote><p>到这里对于这个问题得到的结论是：</p><ol><li>Rancher Server 逻辑是没有问题，查询语句是正确的</li><li>Prometheus 和 node_exporter 数据采集逻辑本身没有问题</li><li>外部因素例如高负载造成的数据延迟，内核及环境问题可能造成<strong>数据异常</strong></li></ol><p>总的来说，这个问题产生的监控数据异常一般来说只是瞬时的，对整体监控影响不大，但是此时我们就要关注相关节点和组件负载是否有异常表现，一瞬间的监控数据异常可能背后有更深层次的原因。</p><p>附：关于为什么不推荐在数据源设置时间戳可以看这个 issue ：<a href=https://github.com/prometheus/client_golang/issues/187 target=_blank rel="noopener noreffer">Consider allowing setting a timestamp for ConstMetrics. #187</a></p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p><a href=https://stackoverflow.com/questions/58765381/node-exporter-shows-wrong-idle-cpu-time target=_blank rel="noopener noreffer">Node Exporter shows Wrong Idle CPU time - stackoverflow</a>，<a href=https://github.com/prometheus/prometheus/issues/1287#issuecomment-169307350 target=_blank rel="noopener noreffer">negative values with irate #1287</a>，<a href=https://stackoverflow.com/questions/43301733/prometheus-query-returns-invalid-value target=_blank rel="noopener noreffer">Prometheus query returns invalid value - stackoverflow</a>，<a href=https://github.com/prometheus/node_exporter/issues/1686 target=_blank rel="noopener noreffer">node_cpu_seconds_total values are not monotonically increasing #1686</a> <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p><a href=https://groups.google.com/forum/#!searchin/prometheus-users/cpu$20negative%7csort:date/prometheus-users/yuplkBnxjHw/eCINkDwlCgAJ target=_blank rel="noopener noreffer">Negative values with Rate function used for CPU usage metric by node_exporter</a> <a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2020-06-11</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/ data-title="Rancher 监控面板出现 CPU 利用率出现负数" data-hashtags=Rancher,monitor,Prometheus,node_exporter><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/ data-hashtag=Rancher><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/ data-title="Rancher 监控面板出现 CPU 利用率出现负数" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/ data-title="Rancher 监控面板出现 CPU 利用率出现负数"><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/ data-title="Rancher 监控面板出现 CPU 利用率出现负数"><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/ data-title="Rancher 监控面板出现 CPU 利用率出现负数" data-description><i data-svg-src=https://www.elonzh.com/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/ data-title="Rancher 监控面板出现 CPU 利用率出现负数" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://www.elonzh.com/rancher-%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF%E5%87%BA%E7%8E%B0-cpu-%E5%88%A9%E7%94%A8%E7%8E%87%E5%87%BA%E7%8E%B0%E8%B4%9F%E6%95%B0/ data-title="Rancher 监控面板出现 CPU 利用率出现负数"><i class="fab fa-evernote fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=https://www.elonzh.com/tags/rancher/>Rancher</a>,&nbsp;<a href=https://www.elonzh.com/tags/monitor/>monitor</a>,&nbsp;<a href=https://www.elonzh.com/tags/prometheus/>Prometheus</a>,&nbsp;<a href=https://www.elonzh.com/tags/node_exporter/>node_exporter</a></section><section><span><a href=javascript:void(0); onclick=window.history.back();>返回</a></span>&nbsp;|&nbsp;<span><a href=https://www.elonzh.com/>主页</a></span></section></div><div class=post-nav><a href=https://www.elonzh.com/rancher-%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%9A%8F%E6%9C%BA%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/ class=prev rel=prev title="Rancher 流水线随机失败问题"><i class="fas fa-angle-left fa-fw"></i>Rancher 流水线随机失败问题</a></div></div><div id=comments><div id=disqus_thread class=comment></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://disqus.com/?ref_noscript>Disqus</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.68.3">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i>LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2019 - 2020</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://www.elonzh.com/ target=_blank>Elon Zhou</a></span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i></a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><link rel=stylesheet href=https://www.elonzh.com/lib/katex/katex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/katex/copy-tex.min.css><link rel=stylesheet href=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=https://elonzh.disqus.com/embed.js defer></script><script type=text/javascript src=https://www.elonzh.com/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/sharer/sharer.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/katex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/auto-render.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/copy-tex.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/katex/mhchem.min.js></script><script type=text/javascript src=https://www.elonzh.com/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":30},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","lunrIndexURL":"/index.json","lunrLanguageCode":"zh","lunrSegmentitURL":"/lib/lunr/lunr.segmentit.js","maxResultLength":10,"noResultsFound":"没有找到结果","snippetLength":50,"type":"lunr"}};</script><script type=text/javascript src=https://www.elonzh.com/js/theme.min.js></script></body></html>
